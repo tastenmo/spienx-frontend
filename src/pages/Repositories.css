@@ -1,0 +1,230 @@
+.repositories-page .page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.repositories-page h1 {
+  margin: 0;
+}
+
+.repositories-stats {
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background-color: var(--surface);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+.repositories-stats p {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.repositories-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1.5rem;
+}
+
+.repository-card {
+  background-color: var(--surface);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1.5rem;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.repository-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.repository-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.repository-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.repository-header h3 a {
+  color: var(--primary-color);
+  text-decoration: none;
+}
+
+.repository-header h3 a:hover {
+  text-decoration: underline;
+}
+
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status-active { background-color: #4caf50; color: white; }
+.status-pending { background-color: #ff9800; color: white; }
+.status-error { background-color: #f44336; color: white; }
+.status-syncing { background-color: #2196f3; color: white; }
+
+.repository-description {
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.repository-meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background-color: var(--background);
+  border-radius: 4px;
+}
+
+.meta-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.meta-item .label {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  margin-bottom: 0.25rem;
+}
+
+.meta-item .value {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.repository-source {
+  margin-bottom: 1rem;
+}
+
+.source-link {
+  font-size: 0.9rem;
+  color: var(--primary-color);
+  text-decoration: none;
+}
+
+.source-link:hover {
+  text-decoration: underline;
+}
+
+.repository-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.repository-footer {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color);
+  text-align: center;
+}
+
+.repository-footer small {
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+}
+
+.btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-hover);
+}
+
+.btn-secondary {
+  background-color: var(--surface);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+  background-color: var(--background);
+}
+
+.btn-danger {
+  background-color: #f44336;
+  color: white;
+}
+
+.btn-danger:hover {
+  background-color: #d32f2f;
+}
+
+.btn-sm {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.875rem;
+}
+
+.loading, .error-message, .empty-state {
+  text-align: center;
+  padding: 3rem 2rem;
+  background-color: var(--surface);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+.error-message {
+  background-color: rgba(244, 67, 54, 0.1);
+  border-color: #f44336;
+  color: #f44336;
+}
+
+.empty-state h2 {
+  margin-bottom: 1rem;
+}
+
+.empty-state p {
+  color: var(--text-secondary);
+  margin-bottom: 2rem;
+}
+
+@media (max-width: 768px) {
+  .repositories-page .page-header {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .repositories-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .repository-actions {
+    flex-direction: column;
+  }
+
+  .repository-actions .btn {
+    width: 100%;
+  }
+}
