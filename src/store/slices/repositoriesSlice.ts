@@ -73,8 +73,33 @@ export const createRepository = createAsyncThunk(
   'repositories/createRepository',
   async (data: CreateRepositoryData, { rejectWithValue }) => {
     try {
-      const response = await gitService.createRepository(data);
-      return response.repository;
+      // Use initRepository for creating new repositories
+      const response = await gitService.initRepository(
+        data.name, 
+        data.organisationId, 
+        data.description || ''
+      );
+      
+      // Return a constructed repository object
+      return {
+        id: response.id,
+        localPath: response.localPath,
+        name: data.name,
+        description: data.description || '',
+        organisationId: data.organisationId,
+        status: 'active',
+        isPublic: data.isPublic ?? true,
+        sourceUrl: '',
+        sourceType: 'custom',
+        isMirror: false,
+        isBare: true,
+        defaultBranch: 'main',
+        lastSyncedAt: null,
+        lastCommitHash: '',
+        totalCommits: 0,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
     } catch (error: any) {
       return rejectWithValue(error.message || 'Failed to create repository');
     }

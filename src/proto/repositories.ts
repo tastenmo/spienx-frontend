@@ -2,14 +2,25 @@
 // versions:
 //   protoc-gen-ts_proto  v2.8.3
 //   protoc               v3.21.12
-// source: git.proto
+// source: repositories.proto
 
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import type { CallContext, CallOptions } from "nice-grpc-common";
 import { Empty } from "./google/protobuf/empty";
 
-export const protobufPackage = "git.git";
+export const protobufPackage = "config.repositories";
+
+export interface GitRepositoryCreationInitRequest {
+  name: string;
+  organisationId: number;
+  description: string;
+}
+
+export interface GitRepositoryCreationInitResponse {
+  id: number;
+  localPath: string;
+}
 
 export interface GitRepositoryDestroyRequest {
   id: number;
@@ -29,16 +40,11 @@ export interface GitRepositoryPartialUpdateRequest {
   description?: string | undefined;
   sourceUrl: string;
   sourceType?: string | undefined;
-  localPath: string;
   status?: string | undefined;
   isMirror?: boolean | undefined;
   isBare?: boolean | undefined;
   defaultBranch?: string | undefined;
-  lastSyncedAt?: string | undefined;
-  lastCommitHash?: string | undefined;
-  totalCommits?: number | undefined;
   isPublic?: boolean | undefined;
-  errorMessage?: string | undefined;
   organisation: number;
   owner?: number | undefined;
 }
@@ -49,16 +55,11 @@ export interface GitRepositoryRequest {
   description?: string | undefined;
   sourceUrl: string;
   sourceType?: string | undefined;
-  localPath: string;
   status?: string | undefined;
   isMirror?: boolean | undefined;
   isBare?: boolean | undefined;
   defaultBranch?: string | undefined;
-  lastSyncedAt?: string | undefined;
-  lastCommitHash?: string | undefined;
-  totalCommits?: number | undefined;
   isPublic?: boolean | undefined;
-  errorMessage?: string | undefined;
   organisation: number;
   owner?: number | undefined;
 }
@@ -69,7 +70,7 @@ export interface GitRepositoryResponse {
   description?: string | undefined;
   sourceUrl: string;
   sourceType?: string | undefined;
-  localPath: string;
+  localPath?: string | undefined;
   status?: string | undefined;
   isMirror?: boolean | undefined;
   isBare?: boolean | undefined;
@@ -88,6 +89,182 @@ export interface GitRepositoryResponse {
 export interface GitRepositoryRetrieveRequest {
   id: number;
 }
+
+function createBaseGitRepositoryCreationInitRequest(): GitRepositoryCreationInitRequest {
+  return { name: "", organisationId: 0, description: "" };
+}
+
+export const GitRepositoryCreationInitRequest: MessageFns<GitRepositoryCreationInitRequest> = {
+  encode(message: GitRepositoryCreationInitRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.name !== "") {
+      writer.uint32(10).string(message.name);
+    }
+    if (message.organisationId !== 0) {
+      writer.uint32(16).int64(message.organisationId);
+    }
+    if (message.description !== "") {
+      writer.uint32(26).string(message.description);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GitRepositoryCreationInitRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseGitRepositoryCreationInitRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.name = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 16) {
+            break;
+          }
+
+          message.organisationId = longToNumber(reader.int64());
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.description = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): GitRepositoryCreationInitRequest {
+    return {
+      name: isSet(object.name) ? globalThis.String(object.name) : "",
+      organisationId: isSet(object.organisationId) ? globalThis.Number(object.organisationId) : 0,
+      description: isSet(object.description) ? globalThis.String(object.description) : "",
+    };
+  },
+
+  toJSON(message: GitRepositoryCreationInitRequest): unknown {
+    const obj: any = {};
+    if (message.name !== "") {
+      obj.name = message.name;
+    }
+    if (message.organisationId !== 0) {
+      obj.organisationId = Math.round(message.organisationId);
+    }
+    if (message.description !== "") {
+      obj.description = message.description;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<GitRepositoryCreationInitRequest>, I>>(
+    base?: I,
+  ): GitRepositoryCreationInitRequest {
+    return GitRepositoryCreationInitRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<GitRepositoryCreationInitRequest>, I>>(
+    object: I,
+  ): GitRepositoryCreationInitRequest {
+    const message = createBaseGitRepositoryCreationInitRequest();
+    message.name = object.name ?? "";
+    message.organisationId = object.organisationId ?? 0;
+    message.description = object.description ?? "";
+    return message;
+  },
+};
+
+function createBaseGitRepositoryCreationInitResponse(): GitRepositoryCreationInitResponse {
+  return { id: 0, localPath: "" };
+}
+
+export const GitRepositoryCreationInitResponse: MessageFns<GitRepositoryCreationInitResponse> = {
+  encode(message: GitRepositoryCreationInitResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== 0) {
+      writer.uint32(8).int64(message.id);
+    }
+    if (message.localPath !== "") {
+      writer.uint32(18).string(message.localPath);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GitRepositoryCreationInitResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseGitRepositoryCreationInitResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
+            break;
+          }
+
+          message.id = longToNumber(reader.int64());
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.localPath = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): GitRepositoryCreationInitResponse {
+    return {
+      id: isSet(object.id) ? globalThis.Number(object.id) : 0,
+      localPath: isSet(object.localPath) ? globalThis.String(object.localPath) : "",
+    };
+  },
+
+  toJSON(message: GitRepositoryCreationInitResponse): unknown {
+    const obj: any = {};
+    if (message.id !== 0) {
+      obj.id = Math.round(message.id);
+    }
+    if (message.localPath !== "") {
+      obj.localPath = message.localPath;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<GitRepositoryCreationInitResponse>, I>>(
+    base?: I,
+  ): GitRepositoryCreationInitResponse {
+    return GitRepositoryCreationInitResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<GitRepositoryCreationInitResponse>, I>>(
+    object: I,
+  ): GitRepositoryCreationInitResponse {
+    const message = createBaseGitRepositoryCreationInitResponse();
+    message.id = object.id ?? 0;
+    message.localPath = object.localPath ?? "";
+    return message;
+  },
+};
 
 function createBaseGitRepositoryDestroyRequest(): GitRepositoryDestroyRequest {
   return { id: 0 };
@@ -260,16 +437,11 @@ function createBaseGitRepositoryPartialUpdateRequest(): GitRepositoryPartialUpda
     description: undefined,
     sourceUrl: "",
     sourceType: undefined,
-    localPath: "",
     status: undefined,
     isMirror: undefined,
     isBare: undefined,
     defaultBranch: undefined,
-    lastSyncedAt: undefined,
-    lastCommitHash: undefined,
-    totalCommits: undefined,
     isPublic: undefined,
-    errorMessage: undefined,
     organisation: 0,
     owner: undefined,
   };
@@ -295,41 +467,26 @@ export const GitRepositoryPartialUpdateRequest: MessageFns<GitRepositoryPartialU
     if (message.sourceType !== undefined) {
       writer.uint32(50).string(message.sourceType);
     }
-    if (message.localPath !== "") {
-      writer.uint32(58).string(message.localPath);
-    }
     if (message.status !== undefined) {
-      writer.uint32(66).string(message.status);
+      writer.uint32(58).string(message.status);
     }
     if (message.isMirror !== undefined) {
-      writer.uint32(72).bool(message.isMirror);
+      writer.uint32(64).bool(message.isMirror);
     }
     if (message.isBare !== undefined) {
-      writer.uint32(80).bool(message.isBare);
+      writer.uint32(72).bool(message.isBare);
     }
     if (message.defaultBranch !== undefined) {
-      writer.uint32(90).string(message.defaultBranch);
-    }
-    if (message.lastSyncedAt !== undefined) {
-      writer.uint32(98).string(message.lastSyncedAt);
-    }
-    if (message.lastCommitHash !== undefined) {
-      writer.uint32(106).string(message.lastCommitHash);
-    }
-    if (message.totalCommits !== undefined) {
-      writer.uint32(112).int32(message.totalCommits);
+      writer.uint32(82).string(message.defaultBranch);
     }
     if (message.isPublic !== undefined) {
-      writer.uint32(120).bool(message.isPublic);
-    }
-    if (message.errorMessage !== undefined) {
-      writer.uint32(130).string(message.errorMessage);
+      writer.uint32(88).bool(message.isPublic);
     }
     if (message.organisation !== 0) {
-      writer.uint32(136).int64(message.organisation);
+      writer.uint32(96).int64(message.organisation);
     }
     if (message.owner !== undefined) {
-      writer.uint32(144).int64(message.owner);
+      writer.uint32(104).int64(message.owner);
     }
     return writer;
   },
@@ -394,15 +551,15 @@ export const GitRepositoryPartialUpdateRequest: MessageFns<GitRepositoryPartialU
             break;
           }
 
-          message.localPath = reader.string();
+          message.status = reader.string();
           continue;
         }
         case 8: {
-          if (tag !== 66) {
+          if (tag !== 64) {
             break;
           }
 
-          message.status = reader.string();
+          message.isMirror = reader.bool();
           continue;
         }
         case 9: {
@@ -410,75 +567,35 @@ export const GitRepositoryPartialUpdateRequest: MessageFns<GitRepositoryPartialU
             break;
           }
 
-          message.isMirror = reader.bool();
-          continue;
-        }
-        case 10: {
-          if (tag !== 80) {
-            break;
-          }
-
           message.isBare = reader.bool();
           continue;
         }
-        case 11: {
-          if (tag !== 90) {
+        case 10: {
+          if (tag !== 82) {
             break;
           }
 
           message.defaultBranch = reader.string();
           continue;
         }
-        case 12: {
-          if (tag !== 98) {
-            break;
-          }
-
-          message.lastSyncedAt = reader.string();
-          continue;
-        }
-        case 13: {
-          if (tag !== 106) {
-            break;
-          }
-
-          message.lastCommitHash = reader.string();
-          continue;
-        }
-        case 14: {
-          if (tag !== 112) {
-            break;
-          }
-
-          message.totalCommits = reader.int32();
-          continue;
-        }
-        case 15: {
-          if (tag !== 120) {
+        case 11: {
+          if (tag !== 88) {
             break;
           }
 
           message.isPublic = reader.bool();
           continue;
         }
-        case 16: {
-          if (tag !== 130) {
-            break;
-          }
-
-          message.errorMessage = reader.string();
-          continue;
-        }
-        case 17: {
-          if (tag !== 136) {
+        case 12: {
+          if (tag !== 96) {
             break;
           }
 
           message.organisation = longToNumber(reader.int64());
           continue;
         }
-        case 18: {
-          if (tag !== 144) {
+        case 13: {
+          if (tag !== 104) {
             break;
           }
 
@@ -504,16 +621,11 @@ export const GitRepositoryPartialUpdateRequest: MessageFns<GitRepositoryPartialU
       description: isSet(object.description) ? globalThis.String(object.description) : undefined,
       sourceUrl: isSet(object.sourceUrl) ? globalThis.String(object.sourceUrl) : "",
       sourceType: isSet(object.sourceType) ? globalThis.String(object.sourceType) : undefined,
-      localPath: isSet(object.localPath) ? globalThis.String(object.localPath) : "",
       status: isSet(object.status) ? globalThis.String(object.status) : undefined,
       isMirror: isSet(object.isMirror) ? globalThis.Boolean(object.isMirror) : undefined,
       isBare: isSet(object.isBare) ? globalThis.Boolean(object.isBare) : undefined,
       defaultBranch: isSet(object.defaultBranch) ? globalThis.String(object.defaultBranch) : undefined,
-      lastSyncedAt: isSet(object.lastSyncedAt) ? globalThis.String(object.lastSyncedAt) : undefined,
-      lastCommitHash: isSet(object.lastCommitHash) ? globalThis.String(object.lastCommitHash) : undefined,
-      totalCommits: isSet(object.totalCommits) ? globalThis.Number(object.totalCommits) : undefined,
       isPublic: isSet(object.isPublic) ? globalThis.Boolean(object.isPublic) : undefined,
-      errorMessage: isSet(object.errorMessage) ? globalThis.String(object.errorMessage) : undefined,
       organisation: isSet(object.organisation) ? globalThis.Number(object.organisation) : 0,
       owner: isSet(object.owner) ? globalThis.Number(object.owner) : undefined,
     };
@@ -539,9 +651,6 @@ export const GitRepositoryPartialUpdateRequest: MessageFns<GitRepositoryPartialU
     if (message.sourceType !== undefined) {
       obj.sourceType = message.sourceType;
     }
-    if (message.localPath !== "") {
-      obj.localPath = message.localPath;
-    }
     if (message.status !== undefined) {
       obj.status = message.status;
     }
@@ -554,20 +663,8 @@ export const GitRepositoryPartialUpdateRequest: MessageFns<GitRepositoryPartialU
     if (message.defaultBranch !== undefined) {
       obj.defaultBranch = message.defaultBranch;
     }
-    if (message.lastSyncedAt !== undefined) {
-      obj.lastSyncedAt = message.lastSyncedAt;
-    }
-    if (message.lastCommitHash !== undefined) {
-      obj.lastCommitHash = message.lastCommitHash;
-    }
-    if (message.totalCommits !== undefined) {
-      obj.totalCommits = Math.round(message.totalCommits);
-    }
     if (message.isPublic !== undefined) {
       obj.isPublic = message.isPublic;
-    }
-    if (message.errorMessage !== undefined) {
-      obj.errorMessage = message.errorMessage;
     }
     if (message.organisation !== 0) {
       obj.organisation = Math.round(message.organisation);
@@ -593,16 +690,11 @@ export const GitRepositoryPartialUpdateRequest: MessageFns<GitRepositoryPartialU
     message.description = object.description ?? undefined;
     message.sourceUrl = object.sourceUrl ?? "";
     message.sourceType = object.sourceType ?? undefined;
-    message.localPath = object.localPath ?? "";
     message.status = object.status ?? undefined;
     message.isMirror = object.isMirror ?? undefined;
     message.isBare = object.isBare ?? undefined;
     message.defaultBranch = object.defaultBranch ?? undefined;
-    message.lastSyncedAt = object.lastSyncedAt ?? undefined;
-    message.lastCommitHash = object.lastCommitHash ?? undefined;
-    message.totalCommits = object.totalCommits ?? undefined;
     message.isPublic = object.isPublic ?? undefined;
-    message.errorMessage = object.errorMessage ?? undefined;
     message.organisation = object.organisation ?? 0;
     message.owner = object.owner ?? undefined;
     return message;
@@ -616,16 +708,11 @@ function createBaseGitRepositoryRequest(): GitRepositoryRequest {
     description: undefined,
     sourceUrl: "",
     sourceType: undefined,
-    localPath: "",
     status: undefined,
     isMirror: undefined,
     isBare: undefined,
     defaultBranch: undefined,
-    lastSyncedAt: undefined,
-    lastCommitHash: undefined,
-    totalCommits: undefined,
     isPublic: undefined,
-    errorMessage: undefined,
     organisation: 0,
     owner: undefined,
   };
@@ -648,41 +735,26 @@ export const GitRepositoryRequest: MessageFns<GitRepositoryRequest> = {
     if (message.sourceType !== undefined) {
       writer.uint32(42).string(message.sourceType);
     }
-    if (message.localPath !== "") {
-      writer.uint32(50).string(message.localPath);
-    }
     if (message.status !== undefined) {
-      writer.uint32(58).string(message.status);
+      writer.uint32(50).string(message.status);
     }
     if (message.isMirror !== undefined) {
-      writer.uint32(64).bool(message.isMirror);
+      writer.uint32(56).bool(message.isMirror);
     }
     if (message.isBare !== undefined) {
-      writer.uint32(72).bool(message.isBare);
+      writer.uint32(64).bool(message.isBare);
     }
     if (message.defaultBranch !== undefined) {
-      writer.uint32(82).string(message.defaultBranch);
-    }
-    if (message.lastSyncedAt !== undefined) {
-      writer.uint32(90).string(message.lastSyncedAt);
-    }
-    if (message.lastCommitHash !== undefined) {
-      writer.uint32(98).string(message.lastCommitHash);
-    }
-    if (message.totalCommits !== undefined) {
-      writer.uint32(104).int32(message.totalCommits);
+      writer.uint32(74).string(message.defaultBranch);
     }
     if (message.isPublic !== undefined) {
-      writer.uint32(112).bool(message.isPublic);
-    }
-    if (message.errorMessage !== undefined) {
-      writer.uint32(122).string(message.errorMessage);
+      writer.uint32(80).bool(message.isPublic);
     }
     if (message.organisation !== 0) {
-      writer.uint32(128).int64(message.organisation);
+      writer.uint32(88).int64(message.organisation);
     }
     if (message.owner !== undefined) {
-      writer.uint32(136).int64(message.owner);
+      writer.uint32(96).int64(message.owner);
     }
     return writer;
   },
@@ -739,15 +811,15 @@ export const GitRepositoryRequest: MessageFns<GitRepositoryRequest> = {
             break;
           }
 
-          message.localPath = reader.string();
+          message.status = reader.string();
           continue;
         }
         case 7: {
-          if (tag !== 58) {
+          if (tag !== 56) {
             break;
           }
 
-          message.status = reader.string();
+          message.isMirror = reader.bool();
           continue;
         }
         case 8: {
@@ -755,75 +827,35 @@ export const GitRepositoryRequest: MessageFns<GitRepositoryRequest> = {
             break;
           }
 
-          message.isMirror = reader.bool();
-          continue;
-        }
-        case 9: {
-          if (tag !== 72) {
-            break;
-          }
-
           message.isBare = reader.bool();
           continue;
         }
-        case 10: {
-          if (tag !== 82) {
+        case 9: {
+          if (tag !== 74) {
             break;
           }
 
           message.defaultBranch = reader.string();
           continue;
         }
-        case 11: {
-          if (tag !== 90) {
-            break;
-          }
-
-          message.lastSyncedAt = reader.string();
-          continue;
-        }
-        case 12: {
-          if (tag !== 98) {
-            break;
-          }
-
-          message.lastCommitHash = reader.string();
-          continue;
-        }
-        case 13: {
-          if (tag !== 104) {
-            break;
-          }
-
-          message.totalCommits = reader.int32();
-          continue;
-        }
-        case 14: {
-          if (tag !== 112) {
+        case 10: {
+          if (tag !== 80) {
             break;
           }
 
           message.isPublic = reader.bool();
           continue;
         }
-        case 15: {
-          if (tag !== 122) {
-            break;
-          }
-
-          message.errorMessage = reader.string();
-          continue;
-        }
-        case 16: {
-          if (tag !== 128) {
+        case 11: {
+          if (tag !== 88) {
             break;
           }
 
           message.organisation = longToNumber(reader.int64());
           continue;
         }
-        case 17: {
-          if (tag !== 136) {
+        case 12: {
+          if (tag !== 96) {
             break;
           }
 
@@ -846,16 +878,11 @@ export const GitRepositoryRequest: MessageFns<GitRepositoryRequest> = {
       description: isSet(object.description) ? globalThis.String(object.description) : undefined,
       sourceUrl: isSet(object.sourceUrl) ? globalThis.String(object.sourceUrl) : "",
       sourceType: isSet(object.sourceType) ? globalThis.String(object.sourceType) : undefined,
-      localPath: isSet(object.localPath) ? globalThis.String(object.localPath) : "",
       status: isSet(object.status) ? globalThis.String(object.status) : undefined,
       isMirror: isSet(object.isMirror) ? globalThis.Boolean(object.isMirror) : undefined,
       isBare: isSet(object.isBare) ? globalThis.Boolean(object.isBare) : undefined,
       defaultBranch: isSet(object.defaultBranch) ? globalThis.String(object.defaultBranch) : undefined,
-      lastSyncedAt: isSet(object.lastSyncedAt) ? globalThis.String(object.lastSyncedAt) : undefined,
-      lastCommitHash: isSet(object.lastCommitHash) ? globalThis.String(object.lastCommitHash) : undefined,
-      totalCommits: isSet(object.totalCommits) ? globalThis.Number(object.totalCommits) : undefined,
       isPublic: isSet(object.isPublic) ? globalThis.Boolean(object.isPublic) : undefined,
-      errorMessage: isSet(object.errorMessage) ? globalThis.String(object.errorMessage) : undefined,
       organisation: isSet(object.organisation) ? globalThis.Number(object.organisation) : 0,
       owner: isSet(object.owner) ? globalThis.Number(object.owner) : undefined,
     };
@@ -878,9 +905,6 @@ export const GitRepositoryRequest: MessageFns<GitRepositoryRequest> = {
     if (message.sourceType !== undefined) {
       obj.sourceType = message.sourceType;
     }
-    if (message.localPath !== "") {
-      obj.localPath = message.localPath;
-    }
     if (message.status !== undefined) {
       obj.status = message.status;
     }
@@ -893,20 +917,8 @@ export const GitRepositoryRequest: MessageFns<GitRepositoryRequest> = {
     if (message.defaultBranch !== undefined) {
       obj.defaultBranch = message.defaultBranch;
     }
-    if (message.lastSyncedAt !== undefined) {
-      obj.lastSyncedAt = message.lastSyncedAt;
-    }
-    if (message.lastCommitHash !== undefined) {
-      obj.lastCommitHash = message.lastCommitHash;
-    }
-    if (message.totalCommits !== undefined) {
-      obj.totalCommits = Math.round(message.totalCommits);
-    }
     if (message.isPublic !== undefined) {
       obj.isPublic = message.isPublic;
-    }
-    if (message.errorMessage !== undefined) {
-      obj.errorMessage = message.errorMessage;
     }
     if (message.organisation !== 0) {
       obj.organisation = Math.round(message.organisation);
@@ -927,16 +939,11 @@ export const GitRepositoryRequest: MessageFns<GitRepositoryRequest> = {
     message.description = object.description ?? undefined;
     message.sourceUrl = object.sourceUrl ?? "";
     message.sourceType = object.sourceType ?? undefined;
-    message.localPath = object.localPath ?? "";
     message.status = object.status ?? undefined;
     message.isMirror = object.isMirror ?? undefined;
     message.isBare = object.isBare ?? undefined;
     message.defaultBranch = object.defaultBranch ?? undefined;
-    message.lastSyncedAt = object.lastSyncedAt ?? undefined;
-    message.lastCommitHash = object.lastCommitHash ?? undefined;
-    message.totalCommits = object.totalCommits ?? undefined;
     message.isPublic = object.isPublic ?? undefined;
-    message.errorMessage = object.errorMessage ?? undefined;
     message.organisation = object.organisation ?? 0;
     message.owner = object.owner ?? undefined;
     return message;
@@ -950,7 +957,7 @@ function createBaseGitRepositoryResponse(): GitRepositoryResponse {
     description: undefined,
     sourceUrl: "",
     sourceType: undefined,
-    localPath: "",
+    localPath: undefined,
     status: undefined,
     isMirror: undefined,
     isBare: undefined,
@@ -984,7 +991,7 @@ export const GitRepositoryResponse: MessageFns<GitRepositoryResponse> = {
     if (message.sourceType !== undefined) {
       writer.uint32(42).string(message.sourceType);
     }
-    if (message.localPath !== "") {
+    if (message.localPath !== undefined) {
       writer.uint32(50).string(message.localPath);
     }
     if (message.status !== undefined) {
@@ -1204,7 +1211,7 @@ export const GitRepositoryResponse: MessageFns<GitRepositoryResponse> = {
       description: isSet(object.description) ? globalThis.String(object.description) : undefined,
       sourceUrl: isSet(object.sourceUrl) ? globalThis.String(object.sourceUrl) : "",
       sourceType: isSet(object.sourceType) ? globalThis.String(object.sourceType) : undefined,
-      localPath: isSet(object.localPath) ? globalThis.String(object.localPath) : "",
+      localPath: isSet(object.localPath) ? globalThis.String(object.localPath) : undefined,
       status: isSet(object.status) ? globalThis.String(object.status) : undefined,
       isMirror: isSet(object.isMirror) ? globalThis.Boolean(object.isMirror) : undefined,
       isBare: isSet(object.isBare) ? globalThis.Boolean(object.isBare) : undefined,
@@ -1238,7 +1245,7 @@ export const GitRepositoryResponse: MessageFns<GitRepositoryResponse> = {
     if (message.sourceType !== undefined) {
       obj.sourceType = message.sourceType;
     }
-    if (message.localPath !== "") {
+    if (message.localPath !== undefined) {
       obj.localPath = message.localPath;
     }
     if (message.status !== undefined) {
@@ -1293,7 +1300,7 @@ export const GitRepositoryResponse: MessageFns<GitRepositoryResponse> = {
     message.description = object.description ?? undefined;
     message.sourceUrl = object.sourceUrl ?? "";
     message.sourceType = object.sourceType ?? undefined;
-    message.localPath = object.localPath ?? "";
+    message.localPath = object.localPath ?? undefined;
     message.status = object.status ?? undefined;
     message.isMirror = object.isMirror ?? undefined;
     message.isBare = object.isBare ?? undefined;
@@ -1372,7 +1379,7 @@ export const GitRepositoryRetrieveRequest: MessageFns<GitRepositoryRetrieveReque
 export type GitRepositoryControllerDefinition = typeof GitRepositoryControllerDefinition;
 export const GitRepositoryControllerDefinition = {
   name: "GitRepositoryController",
-  fullName: "git.git.GitRepositoryController",
+  fullName: "config.repositories.GitRepositoryController",
   methods: {
     create: {
       name: "Create",
@@ -1471,6 +1478,36 @@ export interface GitRepositoryControllerClient<CallOptionsExt = {}> {
     request: DeepPartial<GitRepositoryRequest>,
     options?: CallOptions & CallOptionsExt,
   ): Promise<GitRepositoryResponse>;
+}
+
+export type GitRepositoryCreationControllerDefinition = typeof GitRepositoryCreationControllerDefinition;
+export const GitRepositoryCreationControllerDefinition = {
+  name: "GitRepositoryCreationController",
+  fullName: "config.repositories.GitRepositoryCreationController",
+  methods: {
+    init: {
+      name: "Init",
+      requestType: GitRepositoryCreationInitRequest,
+      requestStream: false,
+      responseType: GitRepositoryCreationInitResponse,
+      responseStream: false,
+      options: {},
+    },
+  },
+} as const;
+
+export interface GitRepositoryCreationControllerServiceImplementation<CallContextExt = {}> {
+  init(
+    request: GitRepositoryCreationInitRequest,
+    context: CallContext & CallContextExt,
+  ): Promise<DeepPartial<GitRepositoryCreationInitResponse>>;
+}
+
+export interface GitRepositoryCreationControllerClient<CallOptionsExt = {}> {
+  init(
+    request: DeepPartial<GitRepositoryCreationInitRequest>,
+    options?: CallOptions & CallOptionsExt,
+  ): Promise<GitRepositoryCreationInitResponse>;
 }
 
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;

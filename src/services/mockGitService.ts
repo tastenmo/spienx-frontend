@@ -154,6 +154,26 @@ class MockGitService {
     };
   }
 
+  async initRepository(name, organisationId, description) {
+    await this.delay(500);
+    const newRepo = {
+      id: Math.floor(Math.random() * 1000) + 100,
+      name,
+      description,
+      organisation: organisationId,
+      local_path: `/data/repos/${organisationId}/${name}`,
+      status: 'active',
+      is_bare: true,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+    MOCK_REPOSITORIES.push(newRepo as any);
+    return {
+      id: newRepo.id,
+      localPath: newRepo.local_path
+    };
+  }
+
   async deleteRepository(repositoryId, force) {
     await this.delay(500);
     const index = MOCK_REPOSITORIES.findIndex(r => r.id === repositoryId);

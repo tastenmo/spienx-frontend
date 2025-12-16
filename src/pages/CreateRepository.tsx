@@ -13,8 +13,6 @@ function CreateRepository() {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    sourceUrl: '',
-    sourceType: 'git',
     organisationId: 1,
     isPublic: true
   })
@@ -82,38 +80,7 @@ function CreateRepository() {
           />
         </div>
 
-        <div className="form-group">
-          <label htmlFor="sourceUrl">
-            Source URL <span className="required">*</span>
-          </label>
-          <input
-            type="url"
-            id="sourceUrl"
-            name="sourceUrl"
-            value={formData.sourceUrl}
-            onChange={handleChange}
-            required
-            placeholder="https://github.com/user/repo.git"
-          />
-          <small className="help-text">
-            The Git repository URL to clone from
-          </small>
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="sourceType">Source Type</label>
-          <select
-            id="sourceType"
-            name="sourceType"
-            value={formData.sourceType}
-            onChange={handleChange}
-          >
-            <option value="git">Git</option>
-            <option value="github">GitHub</option>
-            <option value="gitlab">GitLab</option>
-            <option value="bitbucket">Bitbucket</option>
-          </select>
-        </div>
+        {/* Source URL and Type removed as we are initializing a new repo */}
 
         <div className="form-group">
           <label htmlFor="organisationId">Organisation ID</label>

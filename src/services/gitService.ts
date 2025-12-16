@@ -1,15 +1,35 @@
 import { createClient, createChannel } from 'nice-grpc-web';
-import { GitRepositoryControllerDefinition, GitRepositoryControllerClient } from '../proto/git';
+import { 
+  GitRepositoryControllerDefinition, 
+  GitRepositoryControllerClient,
+  GitRepositoryCreationControllerDefinition,
+  GitRepositoryCreationControllerClient
+} from '../proto/repositories';
 
 // Configure the gRPC-Web client
 const GRPC_BACKEND_URL = import.meta.env.VITE_GRPC_BACKEND_URL || 'http://localhost:8000';
 
 class GitService {
   private client: GitRepositoryControllerClient;
+  private creationClient: GitRepositoryCreationControllerClient;
 
   constructor() {
     const channel = createChannel(GRPC_BACKEND_URL);
     this.client = createClient(GitRepositoryControllerDefinition, channel);
+    this.creationClient = createClient(GitRepositoryCreationControllerDefinition, channel);
+  }
+
+  // Initialize a new repository
+  async initRepository(name: string, organisationId: number, description: string) {
+    const response = await this.creationClient.init({
+      name,
+      organisationId,
+      description
+    });
+    return {
+      id: response.id,
+      localPath: response.localPath
+    };
   }
 
   // List all repositories

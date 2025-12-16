@@ -88,15 +88,15 @@ function Repositories() {
               <div className="repository-meta">
                 <div className="meta-item">
                   <span className="label">Type:</span>
-                  <span className="value">{repo.source_type || 'N/A'}</span>
+                  <span className="value">{repo.sourceType || 'N/A'}</span>
                 </div>
                 <div className="meta-item">
                   <span className="label">Branch:</span>
-                  <span className="value">{repo.default_branch || 'main'}</span>
+                  <span className="value">{repo.defaultBranch || 'main'}</span>
                 </div>
                 <div className="meta-item">
                   <span className="label">Commits:</span>
-                  <span className="value">{repo.total_commits || 0}</span>
+                  <span className="value">{repo.totalCommits || 0}</span>
                 </div>
                 <div className="meta-item">
                   <span className="label">Visibility:</span>

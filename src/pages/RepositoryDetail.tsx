@@ -111,33 +111,33 @@ function RepositoryDetail() {
             </div>
             <div className="info-item">
               <label>Type:</label>
-              <span>{currentRepository.source_type || 'N/A'}</span>
+              <span>{currentRepository.sourceType || 'N/A'}</span>
             </div>
             <div className="info-item">
               <label>Default Branch:</label>
-              <span>{currentRepository.default_branch || 'main'}</span>
+              <span>{currentRepository.defaultBranch || 'main'}</span>
             </div>
             <div className="info-item">
               <label>Visibility:</label>
-              <span>{currentRepository.is_public ? 'Public' : 'Private'}</span>
+              <span>{currentRepository.isPublic ? 'Public' : 'Private'}</span>
             </div>
             <div className="info-item">
               <label>Mirror:</label>
-              <span>{currentRepository.is_mirror ? 'Yes' : 'No'}</span>
+              <span>{currentRepository.isMirror ? 'Yes' : 'No'}</span>
             </div>
             <div className="info-item">
               <label>Bare:</label>
-              <span>{currentRepository.is_bare ? 'Yes' : 'No'}</span>
+              <span>{currentRepository.isBare ? 'Yes' : 'No'}</span>
             </div>
             <div className="info-item">
               <label>Total Commits:</label>
-              <span>{currentRepository.total_commits || 0}</span>
+              <span>{currentRepository.totalCommits || 0}</span>
             </div>
             <div className="info-item">
               <label>Last Synced:</label>
               <span>
-                {currentRepository.last_synced_at 
-                  ? new Date(currentRepository.last_synced_at).toLocaleString()
+                {currentRepository.lastSyncedAt 
+                  ? new Date(currentRepository.lastSyncedAt).toLocaleString()
                   : 'Never'}
               </span>
             </div>

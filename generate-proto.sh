@@ -32,8 +32,8 @@ if ! command -v protoc-gen-grpc-web &> /dev/null; then
 fi
 
 # Proto file location
-PROTO_DIR="../spienx-hub/src/git/grpc"
-PROTO_FILE="git.proto"
+PROTO_DIR="../spienx-hub/src/repositories/grpc"
+PROTO_FILE="repositories.proto"
 OUTPUT_DIR="./src/proto"
 
 # Check if proto file exists
