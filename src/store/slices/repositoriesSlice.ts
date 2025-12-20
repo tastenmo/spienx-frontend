@@ -1,24 +1,19 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { gitService } from '../../services/gitService';
+import { adminService } from '../../services/adminService';
+import { userRepoService } from '../../services/userService';
 
 interface Repository {
   id: number;
   name: string;
-  description: string;
-  sourceUrl: string;
-  sourceType: string;
-  localPath: string;
-  status: string;
-  isMirror: boolean;
-  isBare: boolean;
-  defaultBranch: string;
-  lastSyncedAt: string;
-  lastCommitHash: string;
-  totalCommits: number;
-  isPublic: boolean;
-  createdAt: string;
-  updatedAt: string;
+  description?: string;
+  localPath?: string;
+  gitUrl?: string;
+  isBare?: boolean;
+  isPublic?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
   organisationId: number;
+  owner?: number;
 }
 
 interface RepositoriesState {
@@ -40,8 +35,11 @@ export const fetchRepositories = createAsyncThunk(
   'repositories/fetchRepositories',
   async (params = {}, { rejectWithValue }) => {
     try {
-      const response = await gitService.listRepositories();
-      return response;
+      const response = await adminService.listRepositories();
+      return {
+        repositories: response.results || [],
+        totalCount: (response.results || []).length
+      };
     } catch (error: any) {
       return rejectWithValue(error.message || 'Failed to fetch repositories');
     }
@@ -52,8 +50,8 @@ export const fetchRepository = createAsyncThunk(
   'repositories/fetchRepository',
   async (id: number, { rejectWithValue }) => {
     try {
-      const response = await gitService.getRepository(id);
-      return response.repository;
+      const response = await adminService.getRepository(id);
+      return response;
     } catch (error: any) {
       return rejectWithValue(error.message || 'Failed to fetch repository');
     }
@@ -73,30 +71,21 @@ export const createRepository = createAsyncThunk(
   'repositories/createRepository',
   async (data: CreateRepositoryData, { rejectWithValue }) => {
     try {
-      // Use initRepository for creating new repositories
-      const response = await gitService.initRepository(
-        data.name, 
-        data.organisationId, 
-        data.description || ''
-      );
+      const response = await userRepoService.createRepository({
+        name: data.name,
+        organisationId: data.organisationId,
+        description: data.description || '',
+        isPublic: data.isPublic ?? true,
+      });
       
-      // Return a constructed repository object
       return {
         id: response.id,
         localPath: response.localPath,
+        gitUrl: response.gitUrl,
         name: data.name,
         description: data.description || '',
         organisationId: data.organisationId,
-        status: 'active',
         isPublic: data.isPublic ?? true,
-        sourceUrl: '',
-        sourceType: 'custom',
-        isMirror: false,
-        isBare: true,
-        defaultBranch: 'main',
-        lastSyncedAt: null,
-        lastCommitHash: '',
-        totalCommits: 0,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
@@ -134,8 +123,8 @@ export const deleteRepository = createAsyncThunk(
   'repositories/deleteRepository',
   async ({ repositoryId, force }: { repositoryId: number; force?: boolean }, { rejectWithValue }) => {
     try {
-      const response = await gitService.deleteRepository(repositoryId);
-      return { repositoryId, ...response };
+      await adminService.deleteRepository(repositoryId);
+      return { repositoryId };
     } catch (error: any) {
       return rejectWithValue(error.message || 'Failed to delete repository');
     }

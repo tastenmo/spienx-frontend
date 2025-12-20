@@ -3,7 +3,6 @@ import { useParams, Link, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { 
   fetchRepository, 
-  syncRepository,
   deleteRepository,
   clearCurrentRepository 
 } from '../store/slices/repositoriesSlice'
@@ -34,9 +33,8 @@ function RepositoryDetail() {
 
   const handleSync = async () => {
     try {
-      await dispatch(syncRepository(parseInt(id))).unwrap()
-      alert('Repository sync started successfully!')
-      dispatch(fetchRepository(parseInt(id)))
+      alert('Sync functionality coming soon')
+      // TODO: Implement sync using GitRepositorySyncController
     } catch (err) {
       alert(`Failed to sync repository: ${err}`)
     }
@@ -104,41 +102,27 @@ function RepositoryDetail() {
           <h2>Overview</h2>
           <div className="info-grid">
             <div className="info-item">
-              <label>Status:</label>
-              <span className={`status-badge status-${currentRepository.status}`}>
-                {currentRepository.status}
-              </span>
-            </div>
-            <div className="info-item">
-              <label>Type:</label>
-              <span>{currentRepository.sourceType || 'N/A'}</span>
-            </div>
-            <div className="info-item">
-              <label>Default Branch:</label>
-              <span>{currentRepository.defaultBranch || 'main'}</span>
-            </div>
-            <div className="info-item">
               <label>Visibility:</label>
               <span>{currentRepository.isPublic ? 'Public' : 'Private'}</span>
-            </div>
-            <div className="info-item">
-              <label>Mirror:</label>
-              <span>{currentRepository.isMirror ? 'Yes' : 'No'}</span>
             </div>
             <div className="info-item">
               <label>Bare:</label>
               <span>{currentRepository.isBare ? 'Yes' : 'No'}</span>
             </div>
             <div className="info-item">
-              <label>Total Commits:</label>
-              <span>{currentRepository.totalCommits || 0}</span>
+              <label>Created:</label>
+              <span>
+                {currentRepository.createdAt 
+                  ? new Date(currentRepository.createdAt).toLocaleString()
+                  : 'N/A'}
+              </span>
             </div>
             <div className="info-item">
-              <label>Last Synced:</label>
+              <label>Updated:</label>
               <span>
-                {currentRepository.lastSyncedAt 
-                  ? new Date(currentRepository.lastSyncedAt).toLocaleString()
-                  : 'Never'}
+                {currentRepository.updatedAt 
+                  ? new Date(currentRepository.updatedAt).toLocaleString()
+                  : 'N/A'}
               </span>
             </div>
           </div>
@@ -150,23 +134,17 @@ function RepositoryDetail() {
             </div>
           )}
 
-          {currentRepository.source_url && (
-            <div className="source-url">
-              <h3>Source URL</h3>
-              <a 
-                href={currentRepository.source_url} 
-                target="_blank" 
-                rel="noopener noreferrer"
-              >
-                {currentRepository.source_url}
-              </a>
+          {(currentRepository.gitUrl || currentRepository.localPath) && (
+            <div className="git-url">
+              <h3>Git URL</h3>
+              <code>{currentRepository.gitUrl || currentRepository.localPath}</code>
             </div>
           )}
 
-          {currentRepository.local_path && (
+          {currentRepository.localPath && (
             <div className="local-path">
               <h3>Local Path</h3>
-              <code>{currentRepository.local_path}</code>
+              <code>{currentRepository.localPath}</code>
             </div>
           )}
         </div>

@@ -29,6 +29,22 @@ function Navigation() {
           </li>
           <li>
             <NavLink 
+              to="/mirrors" 
+              className={({ isActive }) => isActive ? 'active' : ''}
+            >
+              Mirrors
+            </NavLink>
+          </li>
+          <li>
+            <NavLink 
+              to="/migrations" 
+              className={({ isActive }) => isActive ? 'active' : ''}
+            >
+              Migrations
+            </NavLink>
+          </li>
+          <li>
+            <NavLink 
               to="/about" 
               className={({ isActive }) => isActive ? 'active' : ''}
             >

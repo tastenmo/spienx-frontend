@@ -6,6 +6,8 @@ import Contact from './pages/Contact'
 import Repositories from './pages/Repositories'
 import RepositoryDetail from './pages/RepositoryDetail'
 import CreateRepository from './pages/CreateRepository'
+import Mirrors from './pages/Mirrors'
+import Migrations from './pages/Migrations'
 import NotFound from './pages/NotFound'
 import './App.css'
 
@@ -22,6 +24,8 @@ function App() {
             <Route path="/repositories" element={<Repositories />} />
             <Route path="/repositories/new" element={<CreateRepository />} />
             <Route path="/repositories/:id" element={<RepositoryDetail />} />
+            <Route path="/mirrors" element={<Mirrors />} />
+            <Route path="/migrations" element={<Migrations />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </main>

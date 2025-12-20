@@ -2,12 +2,16 @@ import { configureStore } from '@reduxjs/toolkit';
 import repositoriesReducer from './slices/repositoriesSlice';
 import branchesReducer from './slices/branchesSlice';
 import commitsReducer from './slices/commitsSlice';
+import mirrorsReducer from './slices/mirrorsSlice';
+import migrationsReducer from './slices/migrationsSlice';
 
 export const store = configureStore({
   reducer: {
     repositories: repositoriesReducer,
     branches: branchesReducer,
-    commits: commitsReducer
+    commits: commitsReducer,
+    mirrors: mirrorsReducer,
+    migrations: migrationsReducer
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

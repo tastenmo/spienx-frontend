@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
+import { useDispatch, useSelector } from 'react-redux'
 import { fetchRepositories, deleteRepository } from '../store/slices/repositoriesSlice'
 import './Repositories.css'
 
@@ -12,10 +12,16 @@ function Repositories() {
     dispatch(fetchRepositories())
   }, [dispatch])
 
+  const copyToClipboard = (text, label) => {
+    navigator.clipboard.writeText(text)
+    alert(`${label} copied to clipboard!`)
+  }
+
   const handleDelete = async (repositoryId, name) => {
     if (window.confirm(`Are you sure you want to delete repository "${name}"?`)) {
       try {
         await dispatch(deleteRepository({ repositoryId, force: false })).unwrap()
+        alert('Repository deleted successfully!')
       } catch (err) {
         alert(`Failed to delete repository: ${err}`)
       }
@@ -24,10 +30,8 @@ function Repositories() {
 
   const handleSync = async (repositoryId) => {
     try {
-      const { syncRepository } = await import('../store/slices/repositoriesSlice')
-      await dispatch(syncRepository(repositoryId)).unwrap()
-      alert('Repository sync started successfully!')
-      dispatch(fetchRepositories())
+      alert('Sync functionality coming soon')
+      // TODO: Implement sync using GitRepositorySyncController
     } catch (err) {
       alert(`Failed to sync repository: ${err}`)
     }
@@ -87,22 +91,30 @@ function Repositories() {
 
               <div className="repository-meta">
                 <div className="meta-item">
-                  <span className="label">Type:</span>
-                  <span className="value">{repo.sourceType || 'N/A'}</span>
-                </div>
-                <div className="meta-item">
-                  <span className="label">Branch:</span>
-                  <span className="value">{repo.defaultBranch || 'main'}</span>
-                </div>
-                <div className="meta-item">
-                  <span className="label">Commits:</span>
-                  <span className="value">{repo.totalCommits || 0}</span>
-                </div>
-                <div className="meta-item">
                   <span className="label">Visibility:</span>
-                  <span className="value">{repo.is_public ? 'Public' : 'Private'}</span>
+                  <span className="value">{repo.isPublic ? 'Public' : 'Private'}</span>
+                </div>
+                <div className="meta-item">
+                  <span className="label">Bare:</span>
+                  <span className="value">{repo.isBare ? 'Yes' : 'No'}</span>
                 </div>
               </div>
+
+              {(repo.gitUrl || repo.localPath) && (
+                <div className="repository-git-url">
+                  <h4>Git URL</h4>
+                  <div className="git-url-display">
+                    <code>{repo.gitUrl || repo.localPath}</code>
+                    <button 
+                      onClick={() => copyToClipboard(repo.gitUrl || repo.localPath, 'Git URL')}
+                      className="btn btn-sm btn-secondary"
+                      title="Copy to clipboard"
+                    >
+                      📋 Copy
+                    </button>
+                  </div>
+                </div>
+              )}
 
               {repo.source_url && (
                 <div className="repository-source">
@@ -137,7 +149,7 @@ function Repositories() {
 
               {repo.last_synced_at && (
                 <div className="repository-footer">
-                  <small>Last synced: {new Date(repo.last_synced_at).toLocaleString()}</small>
+                  <small>Created: {new Date(repo.createdAt).toLocaleString()}</small>
                 </div>
               )}
             </div>
