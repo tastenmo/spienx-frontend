@@ -1,22 +1,18 @@
-import { createClient, createChannel } from 'nice-grpc-web';
 import { 
   GitRepositoryAdminControllerDefinition,
   GitRepositoryAdminControllerClient,
   GitRepositoryCreationControllerDefinition,
   GitRepositoryCreationControllerClient
 } from '../proto/repositories';
-
-// Configure the gRPC-Web client
-const GRPC_BACKEND_URL = import.meta.env.VITE_GRPC_BACKEND_URL || 'http://localhost:8000';
+import { channel, clientFactory } from '../utils/grpc';
 
 class GitService {
   private adminClient: GitRepositoryAdminControllerClient;
   private creationClient: GitRepositoryCreationControllerClient;
 
   constructor() {
-    const channel = createChannel(GRPC_BACKEND_URL);
-    this.adminClient = createClient(GitRepositoryAdminControllerDefinition, channel);
-    this.creationClient = createClient(GitRepositoryCreationControllerDefinition, channel);
+    this.adminClient = clientFactory.create(GitRepositoryAdminControllerDefinition, channel);
+    this.creationClient = clientFactory.create(GitRepositoryCreationControllerDefinition, channel);
   }
 
   // Create a new repository

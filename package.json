@@ -9,7 +9,6 @@
     "preview": "vite preview",
     "lint": "eslint src --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "generate:proto": "./generate-proto.sh"
-    
   },
   "dependencies": {
     "@bufbuild/protobuf": "^2.10.2",

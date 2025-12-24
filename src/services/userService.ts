@@ -1,4 +1,3 @@
-import { createChannel, createClient } from 'nice-grpc-web';
 import {
   GitMirrorRepositoryMirroringControllerClient,
   GitMirrorRepositoryMirroringControllerDefinition,
@@ -14,8 +13,7 @@ import {
   TaskStatusControllerDefinition,
   TaskStatusGetStatusRequest,
 } from '../proto/repositories';
-
-const GRPC_BACKEND_URL = import.meta.env.VITE_GRPC_BACKEND_URL || 'http://localhost:8000';
+import { channel, clientFactory } from '../utils/grpc';
 
 class UserRepoService {
   private creationClient: GitRepositoryCreationControllerClient;
@@ -24,11 +22,10 @@ class UserRepoService {
   private statusClient: TaskStatusControllerClient;
 
   constructor() {
-    const channel = createChannel(GRPC_BACKEND_URL);
-    this.creationClient = createClient(GitRepositoryCreationControllerDefinition, channel);
-    this.migrationClient = createClient(GitRepositoryMigrationControllerDefinition, channel);
-    this.mirrorClient = createClient(GitMirrorRepositoryMirroringControllerDefinition, channel);
-    this.statusClient = createClient(TaskStatusControllerDefinition, channel);
+    this.creationClient = clientFactory.create(GitRepositoryCreationControllerDefinition, channel);
+    this.migrationClient = clientFactory.create(GitRepositoryMigrationControllerDefinition, channel);
+    this.mirrorClient = clientFactory.create(GitMirrorRepositoryMirroringControllerDefinition, channel);
+    this.statusClient = clientFactory.create(TaskStatusControllerDefinition, channel);
   }
 
   async createRepository(payload: GitRepositoryCreationCreateRequest) {

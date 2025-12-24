@@ -1,4 +1,3 @@
-import { createChannel, createClient } from 'nice-grpc-web';
 import {
   GitMirrorRepositoryAdminControllerClient,
   GitMirrorRepositoryAdminControllerDefinition,
@@ -9,17 +8,15 @@ import {
   GitRepositoryPartialUpdateRequest,
   GitRepositoryRequest,
 } from '../proto/repositories';
-
-const GRPC_BACKEND_URL = import.meta.env.VITE_GRPC_BACKEND_URL || 'http://localhost:8000';
+import { channel, clientFactory } from '../utils/grpc';
 
 class AdminService {
   private repoAdminClient: GitRepositoryAdminControllerClient;
   private mirrorAdminClient: GitMirrorRepositoryAdminControllerClient;
 
   constructor() {
-    const channel = createChannel(GRPC_BACKEND_URL);
-    this.repoAdminClient = createClient(GitRepositoryAdminControllerDefinition, channel);
-    this.mirrorAdminClient = createClient(GitMirrorRepositoryAdminControllerDefinition, channel);
+    this.repoAdminClient = clientFactory.create(GitRepositoryAdminControllerDefinition, channel);
+    this.mirrorAdminClient = clientFactory.create(GitMirrorRepositoryAdminControllerDefinition, channel);
   }
 
   async createRepository(payload: Omit<GitRepositoryRequest, 'id'>) {

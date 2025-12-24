@@ -1,8 +1,44 @@
 import React from 'react'
-import { NavLink } from 'react-router-dom'
+import { NavLink, useNavigate } from 'react-router-dom'
+import { getCookie } from '../utils/csrf'
 import './Navigation.css'
 
-function Navigation() {
+interface User {
+  id: number;
+  username: string;
+  email: string;
+  is_superuser: boolean;
+  is_staff: boolean;
+}
+
+interface NavigationProps {
+  user: User | null;
+  onLogout: () => void;
+}
+
+function Navigation({ user, onLogout }: NavigationProps) {
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      const csrfToken = getCookie('csrftoken');
+      const API_URL = import.meta.env.VITE_GRPC_BACKEND_URL || 'https://hub.tastenmo.de';
+      await fetch(`${API_URL}/api/auth/logout/`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrfToken || '',
+        },
+      });
+    } catch (err) {
+      console.error('Logout error:', err);
+    } finally {
+      onLogout();
+      navigate('/login');
+    }
+  };
+
   return (
     <nav className="navigation">
       <div className="nav-container">
@@ -60,6 +96,17 @@ function Navigation() {
             </NavLink>
           </li>
         </ul>
+
+        <div className="nav-user">
+          {user && (
+            <>
+              <span className="user-email">{user.email || user.username}</span>
+              <button onClick={handleLogout} className="btn btn-sm btn-logout">
+                Logout
+              </button>
+            </>
+          )}
+        </div>
       </div>
     </nav>
   )
