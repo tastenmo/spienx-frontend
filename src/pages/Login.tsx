@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { getCookie } from '../utils/csrf';
 import './Login.css';
 
@@ -7,6 +8,7 @@ interface LoginProps {
 }
 
 function Login({ onLoginSuccess }: LoginProps) {
+  const navigate = useNavigate();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -20,6 +22,7 @@ function Login({ onLoginSuccess }: LoginProps) {
     try {
       const csrfToken = getCookie('csrftoken');
       const API_URL = import.meta.env.VITE_GRPC_BACKEND_URL || 'https://hub.tastenmo.de';
+      console.log('Attempting login to:', `${API_URL}/api/auth/login/`);
       const response = await fetch(`${API_URL}/api/auth/login/`, {
         method: 'POST',
         credentials: 'include',
@@ -33,10 +36,14 @@ function Login({ onLoginSuccess }: LoginProps) {
         }),
       });
 
+      console.log('Login response status:', response.status);
       if (response.ok) {
+        const data = await response.json();
+        console.log('✓ Login successful:', data.user);
         onLoginSuccess();
       } else {
         const data = await response.json();
+        console.error('✗ Login failed:', data);
         setError(data.error || 'Login failed. Please try again.');
       }
     } catch (err) {

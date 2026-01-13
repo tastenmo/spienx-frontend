@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
-import Navigation from './components/Navigation'
+import AppLayout from './components/AppLayout'
 import Home from './pages/Home'
 import About from './pages/About'
 import Contact from './pages/Contact'
@@ -50,11 +50,12 @@ function App() {
       });
       
       if (response.ok) {
-// ...existing code...
         const data = await response.json();
+        console.log('✓ Auth successful:', data.user);
         setUser(data.user);
         setIsAuthenticated(true);
       } else {
+        console.log('✗ Auth failed with status:', response.status);
         setIsAuthenticated(false);
         setUser(null);
       }
@@ -75,41 +76,37 @@ function App() {
     );
   }
 
-  if (!isAuthenticated) {
-    return (
-      <Router>
-        <Routes>
-          <Route path="/login" element={<Login onLoginSuccess={checkAuthStatus} />} />
-          <Route path="*" element={<Navigate to="/login" replace />} />
-        </Routes>
-      </Router>
-    );
-  }
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    setUser(null);
+    checkAuthStatus();
+  };
 
   return (
     <Router>
-      <div className="app">
-        <Navigation user={user} onLogout={() => {
-          setIsAuthenticated(false);
-          setUser(null);
-          checkAuthStatus();
-        }} />
-        <main className="main-content">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/repositories" element={<Repositories />} />
-            <Route path="/repositories/new" element={<CreateRepository />} />
-            <Route path="/repositories/:id" element={<RepositoryDetail />} />
-            <Route path="/mirrors" element={<Mirrors />} />
-            <Route path="/migrations" element={<Migrations />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </main>
-      </div>
+      <Routes>
+        {!isAuthenticated ? (
+          <>
+            <Route path="/login" element={<Login onLoginSuccess={checkAuthStatus} />} />
+            <Route path="*" element={<Navigate to="/login" replace />} />
+          </>
+        ) : (
+          <>
+            <Route path="/login" element={<Navigate to="/" replace />} />
+            <Route path="/" element={<AppLayout user={user} onLogout={handleLogout}><Home /></AppLayout>} />
+            <Route path="/about" element={<AppLayout user={user} onLogout={handleLogout}><About /></AppLayout>} />
+            <Route path="/contact" element={<AppLayout user={user} onLogout={handleLogout}><Contact /></AppLayout>} />
+            <Route path="/repositories" element={<AppLayout user={user} onLogout={handleLogout}><Repositories /></AppLayout>} />
+            <Route path="/repositories/new" element={<AppLayout user={user} onLogout={handleLogout}><CreateRepository /></AppLayout>} />
+            <Route path="/repositories/:id" element={<AppLayout user={user} onLogout={handleLogout}><RepositoryDetail /></AppLayout>} />
+            <Route path="/mirrors" element={<AppLayout user={user} onLogout={handleLogout}><Mirrors /></AppLayout>} />
+            <Route path="/migrations" element={<AppLayout user={user} onLogout={handleLogout}><Migrations /></AppLayout>} />
+            <Route path="*" element={<AppLayout user={user} onLogout={handleLogout}><NotFound /></AppLayout>} />
+          </>
+        )}
+      </Routes>
     </Router>
-  )
+  );
 }
 
 export default App
