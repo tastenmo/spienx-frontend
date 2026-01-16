@@ -22,22 +22,6 @@ export interface GitMirrorRepositoryListResponse {
   results: GitMirrorRepositoryResponse[];
 }
 
-export interface GitMirrorRepositoryMirroringCreateMirrorRequest {
-  name: string;
-  organisationId: number;
-  sourceUrl: string;
-  sourceType: string;
-  description: string;
-  autoSync: boolean;
-  syncInterval: number;
-}
-
-export interface GitMirrorRepositoryMirroringCreateMirrorResponse {
-  id: number;
-  status: string;
-  localPath: string;
-}
-
 export interface GitMirrorRepositoryPartialUpdateRequest {
   id?: number | undefined;
   PartialUpdateFields: string[];
@@ -94,19 +78,6 @@ export interface GitMirrorRepositoryRetrieveRequest {
   id: number;
 }
 
-export interface GitRepositoryCreationCreateRequest {
-  name: string;
-  organisationId: number;
-  description: string;
-  isPublic: boolean;
-}
-
-export interface GitRepositoryCreationCreateResponse {
-  id: number;
-  localPath: string;
-  gitUrl: string;
-}
-
 export interface GitRepositoryDestroyRequest {
   id: number;
 }
@@ -116,30 +87,6 @@ export interface GitRepositoryListRequest {
 
 export interface GitRepositoryListResponse {
   results: GitRepositoryResponse[];
-}
-
-export interface GitRepositoryMigrationMigrateFromExternalRequest {
-  name: string;
-  organisationId: number;
-  sourceUrl: string;
-  description: string;
-}
-
-export interface GitRepositoryMigrationMigrateFromExternalResponse {
-  success: boolean;
-  localPath: string;
-  message: string;
-}
-
-export interface GitRepositoryMigrationMigrateRequest {
-  repositoryId: number;
-  newOrganisationId: number;
-}
-
-export interface GitRepositoryMigrationMigrateResponse {
-  success: boolean;
-  newLocalPath: string;
-  message: string;
 }
 
 export interface GitRepositoryPartialUpdateRequest {
@@ -181,17 +128,66 @@ export interface GitRepositoryRetrieveRequest {
   id: number;
 }
 
-export interface GitRepositorySyncSyncNowRequest {
+export interface MirrorRepositoryCreateMirrorRequest {
+  name: string;
+  organisationId: number;
+  sourceUrl: string;
+  sourceType: string;
+  description: string;
+  autoSync: boolean;
+  syncInterval: number;
+}
+
+export interface MirrorRepositoryCreateMirrorResponse {
+  id: number;
+  status: string;
+  localPath: string;
+}
+
+export interface MirrorRepositorySyncNowRequest {
   mirrorId: number;
 }
 
-export interface GitRepositorySyncSyncNowResponse {
+export interface MirrorRepositorySyncNowResponse {
   taskId: number;
   status: string;
 }
 
-export interface SyncTaskDestroyRequest {
+export interface RepositoryCreationCreateRequest {
+  name: string;
+  organisationId: number;
+  description: string;
+  isPublic: boolean;
+}
+
+export interface RepositoryCreationCreateResponse {
   id: number;
+  localPath: string;
+  gitUrl: string;
+}
+
+export interface RepositoryCreationMigrateFromExternalRequest {
+  name: string;
+  organisationId: number;
+  sourceUrl: string;
+  description: string;
+}
+
+export interface RepositoryCreationMigrateFromExternalResponse {
+  success: boolean;
+  localPath: string;
+  message: string;
+}
+
+export interface RepositoryCreationMigrateRequest {
+  repositoryId: number;
+  newOrganisationId: number;
+}
+
+export interface RepositoryCreationMigrateResponse {
+  success: boolean;
+  newLocalPath: string;
+  message: string;
 }
 
 export interface SyncTaskListRequest {
@@ -199,21 +195,6 @@ export interface SyncTaskListRequest {
 
 export interface SyncTaskListResponse {
   results: SyncTaskResponse[];
-}
-
-export interface SyncTaskPartialUpdateRequest {
-  id?: number | undefined;
-  PartialUpdateFields: string[];
-  status?: string | undefined;
-  taskId?: string | undefined;
-  repository: number;
-}
-
-export interface SyncTaskRequest {
-  id?: number | undefined;
-  status?: string | undefined;
-  taskId?: string | undefined;
-  repository: number;
 }
 
 export interface SyncTaskResponse {
@@ -419,280 +400,6 @@ export const GitMirrorRepositoryListResponse: MessageFns<GitMirrorRepositoryList
   ): GitMirrorRepositoryListResponse {
     const message = createBaseGitMirrorRepositoryListResponse();
     message.results = object.results?.map((e) => GitMirrorRepositoryResponse.fromPartial(e)) || [];
-    return message;
-  },
-};
-
-function createBaseGitMirrorRepositoryMirroringCreateMirrorRequest(): GitMirrorRepositoryMirroringCreateMirrorRequest {
-  return {
-    name: "",
-    organisationId: 0,
-    sourceUrl: "",
-    sourceType: "",
-    description: "",
-    autoSync: false,
-    syncInterval: 0,
-  };
-}
-
-export const GitMirrorRepositoryMirroringCreateMirrorRequest: MessageFns<
-  GitMirrorRepositoryMirroringCreateMirrorRequest
-> = {
-  encode(
-    message: GitMirrorRepositoryMirroringCreateMirrorRequest,
-    writer: BinaryWriter = new BinaryWriter(),
-  ): BinaryWriter {
-    if (message.name !== "") {
-      writer.uint32(10).string(message.name);
-    }
-    if (message.organisationId !== 0) {
-      writer.uint32(16).int64(message.organisationId);
-    }
-    if (message.sourceUrl !== "") {
-      writer.uint32(26).string(message.sourceUrl);
-    }
-    if (message.sourceType !== "") {
-      writer.uint32(34).string(message.sourceType);
-    }
-    if (message.description !== "") {
-      writer.uint32(42).string(message.description);
-    }
-    if (message.autoSync !== false) {
-      writer.uint32(48).bool(message.autoSync);
-    }
-    if (message.syncInterval !== 0) {
-      writer.uint32(56).int32(message.syncInterval);
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): GitMirrorRepositoryMirroringCreateMirrorRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseGitMirrorRepositoryMirroringCreateMirrorRequest();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.name = reader.string();
-          continue;
-        }
-        case 2: {
-          if (tag !== 16) {
-            break;
-          }
-
-          message.organisationId = longToNumber(reader.int64());
-          continue;
-        }
-        case 3: {
-          if (tag !== 26) {
-            break;
-          }
-
-          message.sourceUrl = reader.string();
-          continue;
-        }
-        case 4: {
-          if (tag !== 34) {
-            break;
-          }
-
-          message.sourceType = reader.string();
-          continue;
-        }
-        case 5: {
-          if (tag !== 42) {
-            break;
-          }
-
-          message.description = reader.string();
-          continue;
-        }
-        case 6: {
-          if (tag !== 48) {
-            break;
-          }
-
-          message.autoSync = reader.bool();
-          continue;
-        }
-        case 7: {
-          if (tag !== 56) {
-            break;
-          }
-
-          message.syncInterval = reader.int32();
-          continue;
-        }
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-
-  fromJSON(object: any): GitMirrorRepositoryMirroringCreateMirrorRequest {
-    return {
-      name: isSet(object.name) ? globalThis.String(object.name) : "",
-      organisationId: isSet(object.organisationId) ? globalThis.Number(object.organisationId) : 0,
-      sourceUrl: isSet(object.sourceUrl) ? globalThis.String(object.sourceUrl) : "",
-      sourceType: isSet(object.sourceType) ? globalThis.String(object.sourceType) : "",
-      description: isSet(object.description) ? globalThis.String(object.description) : "",
-      autoSync: isSet(object.autoSync) ? globalThis.Boolean(object.autoSync) : false,
-      syncInterval: isSet(object.syncInterval) ? globalThis.Number(object.syncInterval) : 0,
-    };
-  },
-
-  toJSON(message: GitMirrorRepositoryMirroringCreateMirrorRequest): unknown {
-    const obj: any = {};
-    if (message.name !== "") {
-      obj.name = message.name;
-    }
-    if (message.organisationId !== 0) {
-      obj.organisationId = Math.round(message.organisationId);
-    }
-    if (message.sourceUrl !== "") {
-      obj.sourceUrl = message.sourceUrl;
-    }
-    if (message.sourceType !== "") {
-      obj.sourceType = message.sourceType;
-    }
-    if (message.description !== "") {
-      obj.description = message.description;
-    }
-    if (message.autoSync !== false) {
-      obj.autoSync = message.autoSync;
-    }
-    if (message.syncInterval !== 0) {
-      obj.syncInterval = Math.round(message.syncInterval);
-    }
-    return obj;
-  },
-
-  create<I extends Exact<DeepPartial<GitMirrorRepositoryMirroringCreateMirrorRequest>, I>>(
-    base?: I,
-  ): GitMirrorRepositoryMirroringCreateMirrorRequest {
-    return GitMirrorRepositoryMirroringCreateMirrorRequest.fromPartial(base ?? ({} as any));
-  },
-  fromPartial<I extends Exact<DeepPartial<GitMirrorRepositoryMirroringCreateMirrorRequest>, I>>(
-    object: I,
-  ): GitMirrorRepositoryMirroringCreateMirrorRequest {
-    const message = createBaseGitMirrorRepositoryMirroringCreateMirrorRequest();
-    message.name = object.name ?? "";
-    message.organisationId = object.organisationId ?? 0;
-    message.sourceUrl = object.sourceUrl ?? "";
-    message.sourceType = object.sourceType ?? "";
-    message.description = object.description ?? "";
-    message.autoSync = object.autoSync ?? false;
-    message.syncInterval = object.syncInterval ?? 0;
-    return message;
-  },
-};
-
-function createBaseGitMirrorRepositoryMirroringCreateMirrorResponse(): GitMirrorRepositoryMirroringCreateMirrorResponse {
-  return { id: 0, status: "", localPath: "" };
-}
-
-export const GitMirrorRepositoryMirroringCreateMirrorResponse: MessageFns<
-  GitMirrorRepositoryMirroringCreateMirrorResponse
-> = {
-  encode(
-    message: GitMirrorRepositoryMirroringCreateMirrorResponse,
-    writer: BinaryWriter = new BinaryWriter(),
-  ): BinaryWriter {
-    if (message.id !== 0) {
-      writer.uint32(8).int64(message.id);
-    }
-    if (message.status !== "") {
-      writer.uint32(18).string(message.status);
-    }
-    if (message.localPath !== "") {
-      writer.uint32(26).string(message.localPath);
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): GitMirrorRepositoryMirroringCreateMirrorResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseGitMirrorRepositoryMirroringCreateMirrorResponse();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 8) {
-            break;
-          }
-
-          message.id = longToNumber(reader.int64());
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.status = reader.string();
-          continue;
-        }
-        case 3: {
-          if (tag !== 26) {
-            break;
-          }
-
-          message.localPath = reader.string();
-          continue;
-        }
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-
-  fromJSON(object: any): GitMirrorRepositoryMirroringCreateMirrorResponse {
-    return {
-      id: isSet(object.id) ? globalThis.Number(object.id) : 0,
-      status: isSet(object.status) ? globalThis.String(object.status) : "",
-      localPath: isSet(object.localPath) ? globalThis.String(object.localPath) : "",
-    };
-  },
-
-  toJSON(message: GitMirrorRepositoryMirroringCreateMirrorResponse): unknown {
-    const obj: any = {};
-    if (message.id !== 0) {
-      obj.id = Math.round(message.id);
-    }
-    if (message.status !== "") {
-      obj.status = message.status;
-    }
-    if (message.localPath !== "") {
-      obj.localPath = message.localPath;
-    }
-    return obj;
-  },
-
-  create<I extends Exact<DeepPartial<GitMirrorRepositoryMirroringCreateMirrorResponse>, I>>(
-    base?: I,
-  ): GitMirrorRepositoryMirroringCreateMirrorResponse {
-    return GitMirrorRepositoryMirroringCreateMirrorResponse.fromPartial(base ?? ({} as any));
-  },
-  fromPartial<I extends Exact<DeepPartial<GitMirrorRepositoryMirroringCreateMirrorResponse>, I>>(
-    object: I,
-  ): GitMirrorRepositoryMirroringCreateMirrorResponse {
-    const message = createBaseGitMirrorRepositoryMirroringCreateMirrorResponse();
-    message.id = object.id ?? 0;
-    message.status = object.status ?? "";
-    message.localPath = object.localPath ?? "";
     return message;
   },
 };
@@ -1633,214 +1340,6 @@ export const GitMirrorRepositoryRetrieveRequest: MessageFns<GitMirrorRepositoryR
   },
 };
 
-function createBaseGitRepositoryCreationCreateRequest(): GitRepositoryCreationCreateRequest {
-  return { name: "", organisationId: 0, description: "", isPublic: false };
-}
-
-export const GitRepositoryCreationCreateRequest: MessageFns<GitRepositoryCreationCreateRequest> = {
-  encode(message: GitRepositoryCreationCreateRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.name !== "") {
-      writer.uint32(10).string(message.name);
-    }
-    if (message.organisationId !== 0) {
-      writer.uint32(16).int64(message.organisationId);
-    }
-    if (message.description !== "") {
-      writer.uint32(26).string(message.description);
-    }
-    if (message.isPublic !== false) {
-      writer.uint32(32).bool(message.isPublic);
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): GitRepositoryCreationCreateRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseGitRepositoryCreationCreateRequest();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.name = reader.string();
-          continue;
-        }
-        case 2: {
-          if (tag !== 16) {
-            break;
-          }
-
-          message.organisationId = longToNumber(reader.int64());
-          continue;
-        }
-        case 3: {
-          if (tag !== 26) {
-            break;
-          }
-
-          message.description = reader.string();
-          continue;
-        }
-        case 4: {
-          if (tag !== 32) {
-            break;
-          }
-
-          message.isPublic = reader.bool();
-          continue;
-        }
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-
-  fromJSON(object: any): GitRepositoryCreationCreateRequest {
-    return {
-      name: isSet(object.name) ? globalThis.String(object.name) : "",
-      organisationId: isSet(object.organisationId) ? globalThis.Number(object.organisationId) : 0,
-      description: isSet(object.description) ? globalThis.String(object.description) : "",
-      isPublic: isSet(object.isPublic) ? globalThis.Boolean(object.isPublic) : false,
-    };
-  },
-
-  toJSON(message: GitRepositoryCreationCreateRequest): unknown {
-    const obj: any = {};
-    if (message.name !== "") {
-      obj.name = message.name;
-    }
-    if (message.organisationId !== 0) {
-      obj.organisationId = Math.round(message.organisationId);
-    }
-    if (message.description !== "") {
-      obj.description = message.description;
-    }
-    if (message.isPublic !== false) {
-      obj.isPublic = message.isPublic;
-    }
-    return obj;
-  },
-
-  create<I extends Exact<DeepPartial<GitRepositoryCreationCreateRequest>, I>>(
-    base?: I,
-  ): GitRepositoryCreationCreateRequest {
-    return GitRepositoryCreationCreateRequest.fromPartial(base ?? ({} as any));
-  },
-  fromPartial<I extends Exact<DeepPartial<GitRepositoryCreationCreateRequest>, I>>(
-    object: I,
-  ): GitRepositoryCreationCreateRequest {
-    const message = createBaseGitRepositoryCreationCreateRequest();
-    message.name = object.name ?? "";
-    message.organisationId = object.organisationId ?? 0;
-    message.description = object.description ?? "";
-    message.isPublic = object.isPublic ?? false;
-    return message;
-  },
-};
-
-function createBaseGitRepositoryCreationCreateResponse(): GitRepositoryCreationCreateResponse {
-  return { id: 0, localPath: "", gitUrl: "" };
-}
-
-export const GitRepositoryCreationCreateResponse: MessageFns<GitRepositoryCreationCreateResponse> = {
-  encode(message: GitRepositoryCreationCreateResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.id !== 0) {
-      writer.uint32(8).int64(message.id);
-    }
-    if (message.localPath !== "") {
-      writer.uint32(18).string(message.localPath);
-    }
-    if (message.gitUrl !== "") {
-      writer.uint32(26).string(message.gitUrl);
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): GitRepositoryCreationCreateResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseGitRepositoryCreationCreateResponse();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 8) {
-            break;
-          }
-
-          message.id = longToNumber(reader.int64());
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.localPath = reader.string();
-          continue;
-        }
-        case 3: {
-          if (tag !== 26) {
-            break;
-          }
-
-          message.gitUrl = reader.string();
-          continue;
-        }
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-
-  fromJSON(object: any): GitRepositoryCreationCreateResponse {
-    return {
-      id: isSet(object.id) ? globalThis.Number(object.id) : 0,
-      localPath: isSet(object.localPath) ? globalThis.String(object.localPath) : "",
-      gitUrl: isSet(object.gitUrl) ? globalThis.String(object.gitUrl) : "",
-    };
-  },
-
-  toJSON(message: GitRepositoryCreationCreateResponse): unknown {
-    const obj: any = {};
-    if (message.id !== 0) {
-      obj.id = Math.round(message.id);
-    }
-    if (message.localPath !== "") {
-      obj.localPath = message.localPath;
-    }
-    if (message.gitUrl !== "") {
-      obj.gitUrl = message.gitUrl;
-    }
-    return obj;
-  },
-
-  create<I extends Exact<DeepPartial<GitRepositoryCreationCreateResponse>, I>>(
-    base?: I,
-  ): GitRepositoryCreationCreateResponse {
-    return GitRepositoryCreationCreateResponse.fromPartial(base ?? ({} as any));
-  },
-  fromPartial<I extends Exact<DeepPartial<GitRepositoryCreationCreateResponse>, I>>(
-    object: I,
-  ): GitRepositoryCreationCreateResponse {
-    const message = createBaseGitRepositoryCreationCreateResponse();
-    message.id = object.id ?? 0;
-    message.localPath = object.localPath ?? "";
-    message.gitUrl = object.gitUrl ?? "";
-    return message;
-  },
-};
-
 function createBaseGitRepositoryDestroyRequest(): GitRepositoryDestroyRequest {
   return { id: 0 };
 }
@@ -2000,400 +1499,6 @@ export const GitRepositoryListResponse: MessageFns<GitRepositoryListResponse> = 
   fromPartial<I extends Exact<DeepPartial<GitRepositoryListResponse>, I>>(object: I): GitRepositoryListResponse {
     const message = createBaseGitRepositoryListResponse();
     message.results = object.results?.map((e) => GitRepositoryResponse.fromPartial(e)) || [];
-    return message;
-  },
-};
-
-function createBaseGitRepositoryMigrationMigrateFromExternalRequest(): GitRepositoryMigrationMigrateFromExternalRequest {
-  return { name: "", organisationId: 0, sourceUrl: "", description: "" };
-}
-
-export const GitRepositoryMigrationMigrateFromExternalRequest: MessageFns<
-  GitRepositoryMigrationMigrateFromExternalRequest
-> = {
-  encode(
-    message: GitRepositoryMigrationMigrateFromExternalRequest,
-    writer: BinaryWriter = new BinaryWriter(),
-  ): BinaryWriter {
-    if (message.name !== "") {
-      writer.uint32(10).string(message.name);
-    }
-    if (message.organisationId !== 0) {
-      writer.uint32(16).int64(message.organisationId);
-    }
-    if (message.sourceUrl !== "") {
-      writer.uint32(26).string(message.sourceUrl);
-    }
-    if (message.description !== "") {
-      writer.uint32(34).string(message.description);
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): GitRepositoryMigrationMigrateFromExternalRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseGitRepositoryMigrationMigrateFromExternalRequest();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.name = reader.string();
-          continue;
-        }
-        case 2: {
-          if (tag !== 16) {
-            break;
-          }
-
-          message.organisationId = longToNumber(reader.int64());
-          continue;
-        }
-        case 3: {
-          if (tag !== 26) {
-            break;
-          }
-
-          message.sourceUrl = reader.string();
-          continue;
-        }
-        case 4: {
-          if (tag !== 34) {
-            break;
-          }
-
-          message.description = reader.string();
-          continue;
-        }
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-
-  fromJSON(object: any): GitRepositoryMigrationMigrateFromExternalRequest {
-    return {
-      name: isSet(object.name) ? globalThis.String(object.name) : "",
-      organisationId: isSet(object.organisationId) ? globalThis.Number(object.organisationId) : 0,
-      sourceUrl: isSet(object.sourceUrl) ? globalThis.String(object.sourceUrl) : "",
-      description: isSet(object.description) ? globalThis.String(object.description) : "",
-    };
-  },
-
-  toJSON(message: GitRepositoryMigrationMigrateFromExternalRequest): unknown {
-    const obj: any = {};
-    if (message.name !== "") {
-      obj.name = message.name;
-    }
-    if (message.organisationId !== 0) {
-      obj.organisationId = Math.round(message.organisationId);
-    }
-    if (message.sourceUrl !== "") {
-      obj.sourceUrl = message.sourceUrl;
-    }
-    if (message.description !== "") {
-      obj.description = message.description;
-    }
-    return obj;
-  },
-
-  create<I extends Exact<DeepPartial<GitRepositoryMigrationMigrateFromExternalRequest>, I>>(
-    base?: I,
-  ): GitRepositoryMigrationMigrateFromExternalRequest {
-    return GitRepositoryMigrationMigrateFromExternalRequest.fromPartial(base ?? ({} as any));
-  },
-  fromPartial<I extends Exact<DeepPartial<GitRepositoryMigrationMigrateFromExternalRequest>, I>>(
-    object: I,
-  ): GitRepositoryMigrationMigrateFromExternalRequest {
-    const message = createBaseGitRepositoryMigrationMigrateFromExternalRequest();
-    message.name = object.name ?? "";
-    message.organisationId = object.organisationId ?? 0;
-    message.sourceUrl = object.sourceUrl ?? "";
-    message.description = object.description ?? "";
-    return message;
-  },
-};
-
-function createBaseGitRepositoryMigrationMigrateFromExternalResponse(): GitRepositoryMigrationMigrateFromExternalResponse {
-  return { success: false, localPath: "", message: "" };
-}
-
-export const GitRepositoryMigrationMigrateFromExternalResponse: MessageFns<
-  GitRepositoryMigrationMigrateFromExternalResponse
-> = {
-  encode(
-    message: GitRepositoryMigrationMigrateFromExternalResponse,
-    writer: BinaryWriter = new BinaryWriter(),
-  ): BinaryWriter {
-    if (message.success !== false) {
-      writer.uint32(8).bool(message.success);
-    }
-    if (message.localPath !== "") {
-      writer.uint32(18).string(message.localPath);
-    }
-    if (message.message !== "") {
-      writer.uint32(26).string(message.message);
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): GitRepositoryMigrationMigrateFromExternalResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseGitRepositoryMigrationMigrateFromExternalResponse();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 8) {
-            break;
-          }
-
-          message.success = reader.bool();
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.localPath = reader.string();
-          continue;
-        }
-        case 3: {
-          if (tag !== 26) {
-            break;
-          }
-
-          message.message = reader.string();
-          continue;
-        }
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-
-  fromJSON(object: any): GitRepositoryMigrationMigrateFromExternalResponse {
-    return {
-      success: isSet(object.success) ? globalThis.Boolean(object.success) : false,
-      localPath: isSet(object.localPath) ? globalThis.String(object.localPath) : "",
-      message: isSet(object.message) ? globalThis.String(object.message) : "",
-    };
-  },
-
-  toJSON(message: GitRepositoryMigrationMigrateFromExternalResponse): unknown {
-    const obj: any = {};
-    if (message.success !== false) {
-      obj.success = message.success;
-    }
-    if (message.localPath !== "") {
-      obj.localPath = message.localPath;
-    }
-    if (message.message !== "") {
-      obj.message = message.message;
-    }
-    return obj;
-  },
-
-  create<I extends Exact<DeepPartial<GitRepositoryMigrationMigrateFromExternalResponse>, I>>(
-    base?: I,
-  ): GitRepositoryMigrationMigrateFromExternalResponse {
-    return GitRepositoryMigrationMigrateFromExternalResponse.fromPartial(base ?? ({} as any));
-  },
-  fromPartial<I extends Exact<DeepPartial<GitRepositoryMigrationMigrateFromExternalResponse>, I>>(
-    object: I,
-  ): GitRepositoryMigrationMigrateFromExternalResponse {
-    const message = createBaseGitRepositoryMigrationMigrateFromExternalResponse();
-    message.success = object.success ?? false;
-    message.localPath = object.localPath ?? "";
-    message.message = object.message ?? "";
-    return message;
-  },
-};
-
-function createBaseGitRepositoryMigrationMigrateRequest(): GitRepositoryMigrationMigrateRequest {
-  return { repositoryId: 0, newOrganisationId: 0 };
-}
-
-export const GitRepositoryMigrationMigrateRequest: MessageFns<GitRepositoryMigrationMigrateRequest> = {
-  encode(message: GitRepositoryMigrationMigrateRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.repositoryId !== 0) {
-      writer.uint32(8).int64(message.repositoryId);
-    }
-    if (message.newOrganisationId !== 0) {
-      writer.uint32(16).int64(message.newOrganisationId);
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): GitRepositoryMigrationMigrateRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseGitRepositoryMigrationMigrateRequest();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 8) {
-            break;
-          }
-
-          message.repositoryId = longToNumber(reader.int64());
-          continue;
-        }
-        case 2: {
-          if (tag !== 16) {
-            break;
-          }
-
-          message.newOrganisationId = longToNumber(reader.int64());
-          continue;
-        }
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-
-  fromJSON(object: any): GitRepositoryMigrationMigrateRequest {
-    return {
-      repositoryId: isSet(object.repositoryId) ? globalThis.Number(object.repositoryId) : 0,
-      newOrganisationId: isSet(object.newOrganisationId) ? globalThis.Number(object.newOrganisationId) : 0,
-    };
-  },
-
-  toJSON(message: GitRepositoryMigrationMigrateRequest): unknown {
-    const obj: any = {};
-    if (message.repositoryId !== 0) {
-      obj.repositoryId = Math.round(message.repositoryId);
-    }
-    if (message.newOrganisationId !== 0) {
-      obj.newOrganisationId = Math.round(message.newOrganisationId);
-    }
-    return obj;
-  },
-
-  create<I extends Exact<DeepPartial<GitRepositoryMigrationMigrateRequest>, I>>(
-    base?: I,
-  ): GitRepositoryMigrationMigrateRequest {
-    return GitRepositoryMigrationMigrateRequest.fromPartial(base ?? ({} as any));
-  },
-  fromPartial<I extends Exact<DeepPartial<GitRepositoryMigrationMigrateRequest>, I>>(
-    object: I,
-  ): GitRepositoryMigrationMigrateRequest {
-    const message = createBaseGitRepositoryMigrationMigrateRequest();
-    message.repositoryId = object.repositoryId ?? 0;
-    message.newOrganisationId = object.newOrganisationId ?? 0;
-    return message;
-  },
-};
-
-function createBaseGitRepositoryMigrationMigrateResponse(): GitRepositoryMigrationMigrateResponse {
-  return { success: false, newLocalPath: "", message: "" };
-}
-
-export const GitRepositoryMigrationMigrateResponse: MessageFns<GitRepositoryMigrationMigrateResponse> = {
-  encode(message: GitRepositoryMigrationMigrateResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.success !== false) {
-      writer.uint32(8).bool(message.success);
-    }
-    if (message.newLocalPath !== "") {
-      writer.uint32(18).string(message.newLocalPath);
-    }
-    if (message.message !== "") {
-      writer.uint32(26).string(message.message);
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): GitRepositoryMigrationMigrateResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseGitRepositoryMigrationMigrateResponse();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 8) {
-            break;
-          }
-
-          message.success = reader.bool();
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.newLocalPath = reader.string();
-          continue;
-        }
-        case 3: {
-          if (tag !== 26) {
-            break;
-          }
-
-          message.message = reader.string();
-          continue;
-        }
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-
-  fromJSON(object: any): GitRepositoryMigrationMigrateResponse {
-    return {
-      success: isSet(object.success) ? globalThis.Boolean(object.success) : false,
-      newLocalPath: isSet(object.newLocalPath) ? globalThis.String(object.newLocalPath) : "",
-      message: isSet(object.message) ? globalThis.String(object.message) : "",
-    };
-  },
-
-  toJSON(message: GitRepositoryMigrationMigrateResponse): unknown {
-    const obj: any = {};
-    if (message.success !== false) {
-      obj.success = message.success;
-    }
-    if (message.newLocalPath !== "") {
-      obj.newLocalPath = message.newLocalPath;
-    }
-    if (message.message !== "") {
-      obj.message = message.message;
-    }
-    return obj;
-  },
-
-  create<I extends Exact<DeepPartial<GitRepositoryMigrationMigrateResponse>, I>>(
-    base?: I,
-  ): GitRepositoryMigrationMigrateResponse {
-    return GitRepositoryMigrationMigrateResponse.fromPartial(base ?? ({} as any));
-  },
-  fromPartial<I extends Exact<DeepPartial<GitRepositoryMigrationMigrateResponse>, I>>(
-    object: I,
-  ): GitRepositoryMigrationMigrateResponse {
-    const message = createBaseGitRepositoryMigrationMigrateResponse();
-    message.success = object.success ?? false;
-    message.newLocalPath = object.newLocalPath ?? "";
-    message.message = object.message ?? "";
     return message;
   },
 };
@@ -3039,22 +2144,286 @@ export const GitRepositoryRetrieveRequest: MessageFns<GitRepositoryRetrieveReque
   },
 };
 
-function createBaseGitRepositorySyncSyncNowRequest(): GitRepositorySyncSyncNowRequest {
+function createBaseMirrorRepositoryCreateMirrorRequest(): MirrorRepositoryCreateMirrorRequest {
+  return {
+    name: "",
+    organisationId: 0,
+    sourceUrl: "",
+    sourceType: "",
+    description: "",
+    autoSync: false,
+    syncInterval: 0,
+  };
+}
+
+export const MirrorRepositoryCreateMirrorRequest: MessageFns<MirrorRepositoryCreateMirrorRequest> = {
+  encode(message: MirrorRepositoryCreateMirrorRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.name !== "") {
+      writer.uint32(10).string(message.name);
+    }
+    if (message.organisationId !== 0) {
+      writer.uint32(16).int64(message.organisationId);
+    }
+    if (message.sourceUrl !== "") {
+      writer.uint32(26).string(message.sourceUrl);
+    }
+    if (message.sourceType !== "") {
+      writer.uint32(34).string(message.sourceType);
+    }
+    if (message.description !== "") {
+      writer.uint32(42).string(message.description);
+    }
+    if (message.autoSync !== false) {
+      writer.uint32(48).bool(message.autoSync);
+    }
+    if (message.syncInterval !== 0) {
+      writer.uint32(56).int32(message.syncInterval);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): MirrorRepositoryCreateMirrorRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseMirrorRepositoryCreateMirrorRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.name = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 16) {
+            break;
+          }
+
+          message.organisationId = longToNumber(reader.int64());
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.sourceUrl = reader.string();
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.sourceType = reader.string();
+          continue;
+        }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          message.description = reader.string();
+          continue;
+        }
+        case 6: {
+          if (tag !== 48) {
+            break;
+          }
+
+          message.autoSync = reader.bool();
+          continue;
+        }
+        case 7: {
+          if (tag !== 56) {
+            break;
+          }
+
+          message.syncInterval = reader.int32();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): MirrorRepositoryCreateMirrorRequest {
+    return {
+      name: isSet(object.name) ? globalThis.String(object.name) : "",
+      organisationId: isSet(object.organisationId) ? globalThis.Number(object.organisationId) : 0,
+      sourceUrl: isSet(object.sourceUrl) ? globalThis.String(object.sourceUrl) : "",
+      sourceType: isSet(object.sourceType) ? globalThis.String(object.sourceType) : "",
+      description: isSet(object.description) ? globalThis.String(object.description) : "",
+      autoSync: isSet(object.autoSync) ? globalThis.Boolean(object.autoSync) : false,
+      syncInterval: isSet(object.syncInterval) ? globalThis.Number(object.syncInterval) : 0,
+    };
+  },
+
+  toJSON(message: MirrorRepositoryCreateMirrorRequest): unknown {
+    const obj: any = {};
+    if (message.name !== "") {
+      obj.name = message.name;
+    }
+    if (message.organisationId !== 0) {
+      obj.organisationId = Math.round(message.organisationId);
+    }
+    if (message.sourceUrl !== "") {
+      obj.sourceUrl = message.sourceUrl;
+    }
+    if (message.sourceType !== "") {
+      obj.sourceType = message.sourceType;
+    }
+    if (message.description !== "") {
+      obj.description = message.description;
+    }
+    if (message.autoSync !== false) {
+      obj.autoSync = message.autoSync;
+    }
+    if (message.syncInterval !== 0) {
+      obj.syncInterval = Math.round(message.syncInterval);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<MirrorRepositoryCreateMirrorRequest>, I>>(
+    base?: I,
+  ): MirrorRepositoryCreateMirrorRequest {
+    return MirrorRepositoryCreateMirrorRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<MirrorRepositoryCreateMirrorRequest>, I>>(
+    object: I,
+  ): MirrorRepositoryCreateMirrorRequest {
+    const message = createBaseMirrorRepositoryCreateMirrorRequest();
+    message.name = object.name ?? "";
+    message.organisationId = object.organisationId ?? 0;
+    message.sourceUrl = object.sourceUrl ?? "";
+    message.sourceType = object.sourceType ?? "";
+    message.description = object.description ?? "";
+    message.autoSync = object.autoSync ?? false;
+    message.syncInterval = object.syncInterval ?? 0;
+    return message;
+  },
+};
+
+function createBaseMirrorRepositoryCreateMirrorResponse(): MirrorRepositoryCreateMirrorResponse {
+  return { id: 0, status: "", localPath: "" };
+}
+
+export const MirrorRepositoryCreateMirrorResponse: MessageFns<MirrorRepositoryCreateMirrorResponse> = {
+  encode(message: MirrorRepositoryCreateMirrorResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== 0) {
+      writer.uint32(8).int64(message.id);
+    }
+    if (message.status !== "") {
+      writer.uint32(18).string(message.status);
+    }
+    if (message.localPath !== "") {
+      writer.uint32(26).string(message.localPath);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): MirrorRepositoryCreateMirrorResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseMirrorRepositoryCreateMirrorResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
+            break;
+          }
+
+          message.id = longToNumber(reader.int64());
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.status = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.localPath = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): MirrorRepositoryCreateMirrorResponse {
+    return {
+      id: isSet(object.id) ? globalThis.Number(object.id) : 0,
+      status: isSet(object.status) ? globalThis.String(object.status) : "",
+      localPath: isSet(object.localPath) ? globalThis.String(object.localPath) : "",
+    };
+  },
+
+  toJSON(message: MirrorRepositoryCreateMirrorResponse): unknown {
+    const obj: any = {};
+    if (message.id !== 0) {
+      obj.id = Math.round(message.id);
+    }
+    if (message.status !== "") {
+      obj.status = message.status;
+    }
+    if (message.localPath !== "") {
+      obj.localPath = message.localPath;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<MirrorRepositoryCreateMirrorResponse>, I>>(
+    base?: I,
+  ): MirrorRepositoryCreateMirrorResponse {
+    return MirrorRepositoryCreateMirrorResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<MirrorRepositoryCreateMirrorResponse>, I>>(
+    object: I,
+  ): MirrorRepositoryCreateMirrorResponse {
+    const message = createBaseMirrorRepositoryCreateMirrorResponse();
+    message.id = object.id ?? 0;
+    message.status = object.status ?? "";
+    message.localPath = object.localPath ?? "";
+    return message;
+  },
+};
+
+function createBaseMirrorRepositorySyncNowRequest(): MirrorRepositorySyncNowRequest {
   return { mirrorId: 0 };
 }
 
-export const GitRepositorySyncSyncNowRequest: MessageFns<GitRepositorySyncSyncNowRequest> = {
-  encode(message: GitRepositorySyncSyncNowRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const MirrorRepositorySyncNowRequest: MessageFns<MirrorRepositorySyncNowRequest> = {
+  encode(message: MirrorRepositorySyncNowRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.mirrorId !== 0) {
       writer.uint32(8).int64(message.mirrorId);
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): GitRepositorySyncSyncNowRequest {
+  decode(input: BinaryReader | Uint8Array, length?: number): MirrorRepositorySyncNowRequest {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseGitRepositorySyncSyncNowRequest();
+    const message = createBaseMirrorRepositorySyncNowRequest();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -3075,11 +2444,11 @@ export const GitRepositorySyncSyncNowRequest: MessageFns<GitRepositorySyncSyncNo
     return message;
   },
 
-  fromJSON(object: any): GitRepositorySyncSyncNowRequest {
+  fromJSON(object: any): MirrorRepositorySyncNowRequest {
     return { mirrorId: isSet(object.mirrorId) ? globalThis.Number(object.mirrorId) : 0 };
   },
 
-  toJSON(message: GitRepositorySyncSyncNowRequest): unknown {
+  toJSON(message: MirrorRepositorySyncNowRequest): unknown {
     const obj: any = {};
     if (message.mirrorId !== 0) {
       obj.mirrorId = Math.round(message.mirrorId);
@@ -3087,24 +2456,24 @@ export const GitRepositorySyncSyncNowRequest: MessageFns<GitRepositorySyncSyncNo
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<GitRepositorySyncSyncNowRequest>, I>>(base?: I): GitRepositorySyncSyncNowRequest {
-    return GitRepositorySyncSyncNowRequest.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<MirrorRepositorySyncNowRequest>, I>>(base?: I): MirrorRepositorySyncNowRequest {
+    return MirrorRepositorySyncNowRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<GitRepositorySyncSyncNowRequest>, I>>(
+  fromPartial<I extends Exact<DeepPartial<MirrorRepositorySyncNowRequest>, I>>(
     object: I,
-  ): GitRepositorySyncSyncNowRequest {
-    const message = createBaseGitRepositorySyncSyncNowRequest();
+  ): MirrorRepositorySyncNowRequest {
+    const message = createBaseMirrorRepositorySyncNowRequest();
     message.mirrorId = object.mirrorId ?? 0;
     return message;
   },
 };
 
-function createBaseGitRepositorySyncSyncNowResponse(): GitRepositorySyncSyncNowResponse {
+function createBaseMirrorRepositorySyncNowResponse(): MirrorRepositorySyncNowResponse {
   return { taskId: 0, status: "" };
 }
 
-export const GitRepositorySyncSyncNowResponse: MessageFns<GitRepositorySyncSyncNowResponse> = {
-  encode(message: GitRepositorySyncSyncNowResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+export const MirrorRepositorySyncNowResponse: MessageFns<MirrorRepositorySyncNowResponse> = {
+  encode(message: MirrorRepositorySyncNowResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.taskId !== 0) {
       writer.uint32(8).int64(message.taskId);
     }
@@ -3114,10 +2483,10 @@ export const GitRepositorySyncSyncNowResponse: MessageFns<GitRepositorySyncSyncN
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): GitRepositorySyncSyncNowResponse {
+  decode(input: BinaryReader | Uint8Array, length?: number): MirrorRepositorySyncNowResponse {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseGitRepositorySyncSyncNowResponse();
+    const message = createBaseMirrorRepositorySyncNowResponse();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -3146,14 +2515,14 @@ export const GitRepositorySyncSyncNowResponse: MessageFns<GitRepositorySyncSyncN
     return message;
   },
 
-  fromJSON(object: any): GitRepositorySyncSyncNowResponse {
+  fromJSON(object: any): MirrorRepositorySyncNowResponse {
     return {
       taskId: isSet(object.taskId) ? globalThis.Number(object.taskId) : 0,
       status: isSet(object.status) ? globalThis.String(object.status) : "",
     };
   },
 
-  toJSON(message: GitRepositorySyncSyncNowResponse): unknown {
+  toJSON(message: MirrorRepositorySyncNowResponse): unknown {
     const obj: any = {};
     if (message.taskId !== 0) {
       obj.taskId = Math.round(message.taskId);
@@ -3164,46 +2533,77 @@ export const GitRepositorySyncSyncNowResponse: MessageFns<GitRepositorySyncSyncN
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<GitRepositorySyncSyncNowResponse>, I>>(
-    base?: I,
-  ): GitRepositorySyncSyncNowResponse {
-    return GitRepositorySyncSyncNowResponse.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<MirrorRepositorySyncNowResponse>, I>>(base?: I): MirrorRepositorySyncNowResponse {
+    return MirrorRepositorySyncNowResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<GitRepositorySyncSyncNowResponse>, I>>(
+  fromPartial<I extends Exact<DeepPartial<MirrorRepositorySyncNowResponse>, I>>(
     object: I,
-  ): GitRepositorySyncSyncNowResponse {
-    const message = createBaseGitRepositorySyncSyncNowResponse();
+  ): MirrorRepositorySyncNowResponse {
+    const message = createBaseMirrorRepositorySyncNowResponse();
     message.taskId = object.taskId ?? 0;
     message.status = object.status ?? "";
     return message;
   },
 };
 
-function createBaseSyncTaskDestroyRequest(): SyncTaskDestroyRequest {
-  return { id: 0 };
+function createBaseRepositoryCreationCreateRequest(): RepositoryCreationCreateRequest {
+  return { name: "", organisationId: 0, description: "", isPublic: false };
 }
 
-export const SyncTaskDestroyRequest: MessageFns<SyncTaskDestroyRequest> = {
-  encode(message: SyncTaskDestroyRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.id !== 0) {
-      writer.uint32(8).int64(message.id);
+export const RepositoryCreationCreateRequest: MessageFns<RepositoryCreationCreateRequest> = {
+  encode(message: RepositoryCreationCreateRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.name !== "") {
+      writer.uint32(10).string(message.name);
+    }
+    if (message.organisationId !== 0) {
+      writer.uint32(16).int64(message.organisationId);
+    }
+    if (message.description !== "") {
+      writer.uint32(26).string(message.description);
+    }
+    if (message.isPublic !== false) {
+      writer.uint32(32).bool(message.isPublic);
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): SyncTaskDestroyRequest {
+  decode(input: BinaryReader | Uint8Array, length?: number): RepositoryCreationCreateRequest {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseSyncTaskDestroyRequest();
+    const message = createBaseRepositoryCreationCreateRequest();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
         case 1: {
-          if (tag !== 8) {
+          if (tag !== 10) {
             break;
           }
 
-          message.id = longToNumber(reader.int64());
+          message.name = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 16) {
+            break;
+          }
+
+          message.organisationId = longToNumber(reader.int64());
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.description = reader.string();
+          continue;
+        }
+        case 4: {
+          if (tag !== 32) {
+            break;
+          }
+
+          message.isPublic = reader.bool();
           continue;
         }
       }
@@ -3215,24 +2615,530 @@ export const SyncTaskDestroyRequest: MessageFns<SyncTaskDestroyRequest> = {
     return message;
   },
 
-  fromJSON(object: any): SyncTaskDestroyRequest {
-    return { id: isSet(object.id) ? globalThis.Number(object.id) : 0 };
+  fromJSON(object: any): RepositoryCreationCreateRequest {
+    return {
+      name: isSet(object.name) ? globalThis.String(object.name) : "",
+      organisationId: isSet(object.organisationId) ? globalThis.Number(object.organisationId) : 0,
+      description: isSet(object.description) ? globalThis.String(object.description) : "",
+      isPublic: isSet(object.isPublic) ? globalThis.Boolean(object.isPublic) : false,
+    };
   },
 
-  toJSON(message: SyncTaskDestroyRequest): unknown {
+  toJSON(message: RepositoryCreationCreateRequest): unknown {
     const obj: any = {};
-    if (message.id !== 0) {
-      obj.id = Math.round(message.id);
+    if (message.name !== "") {
+      obj.name = message.name;
+    }
+    if (message.organisationId !== 0) {
+      obj.organisationId = Math.round(message.organisationId);
+    }
+    if (message.description !== "") {
+      obj.description = message.description;
+    }
+    if (message.isPublic !== false) {
+      obj.isPublic = message.isPublic;
     }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<SyncTaskDestroyRequest>, I>>(base?: I): SyncTaskDestroyRequest {
-    return SyncTaskDestroyRequest.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<RepositoryCreationCreateRequest>, I>>(base?: I): RepositoryCreationCreateRequest {
+    return RepositoryCreationCreateRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<SyncTaskDestroyRequest>, I>>(object: I): SyncTaskDestroyRequest {
-    const message = createBaseSyncTaskDestroyRequest();
+  fromPartial<I extends Exact<DeepPartial<RepositoryCreationCreateRequest>, I>>(
+    object: I,
+  ): RepositoryCreationCreateRequest {
+    const message = createBaseRepositoryCreationCreateRequest();
+    message.name = object.name ?? "";
+    message.organisationId = object.organisationId ?? 0;
+    message.description = object.description ?? "";
+    message.isPublic = object.isPublic ?? false;
+    return message;
+  },
+};
+
+function createBaseRepositoryCreationCreateResponse(): RepositoryCreationCreateResponse {
+  return { id: 0, localPath: "", gitUrl: "" };
+}
+
+export const RepositoryCreationCreateResponse: MessageFns<RepositoryCreationCreateResponse> = {
+  encode(message: RepositoryCreationCreateResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== 0) {
+      writer.uint32(8).int64(message.id);
+    }
+    if (message.localPath !== "") {
+      writer.uint32(18).string(message.localPath);
+    }
+    if (message.gitUrl !== "") {
+      writer.uint32(26).string(message.gitUrl);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): RepositoryCreationCreateResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseRepositoryCreationCreateResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
+            break;
+          }
+
+          message.id = longToNumber(reader.int64());
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.localPath = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.gitUrl = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): RepositoryCreationCreateResponse {
+    return {
+      id: isSet(object.id) ? globalThis.Number(object.id) : 0,
+      localPath: isSet(object.localPath) ? globalThis.String(object.localPath) : "",
+      gitUrl: isSet(object.gitUrl) ? globalThis.String(object.gitUrl) : "",
+    };
+  },
+
+  toJSON(message: RepositoryCreationCreateResponse): unknown {
+    const obj: any = {};
+    if (message.id !== 0) {
+      obj.id = Math.round(message.id);
+    }
+    if (message.localPath !== "") {
+      obj.localPath = message.localPath;
+    }
+    if (message.gitUrl !== "") {
+      obj.gitUrl = message.gitUrl;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<RepositoryCreationCreateResponse>, I>>(
+    base?: I,
+  ): RepositoryCreationCreateResponse {
+    return RepositoryCreationCreateResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<RepositoryCreationCreateResponse>, I>>(
+    object: I,
+  ): RepositoryCreationCreateResponse {
+    const message = createBaseRepositoryCreationCreateResponse();
     message.id = object.id ?? 0;
+    message.localPath = object.localPath ?? "";
+    message.gitUrl = object.gitUrl ?? "";
+    return message;
+  },
+};
+
+function createBaseRepositoryCreationMigrateFromExternalRequest(): RepositoryCreationMigrateFromExternalRequest {
+  return { name: "", organisationId: 0, sourceUrl: "", description: "" };
+}
+
+export const RepositoryCreationMigrateFromExternalRequest: MessageFns<RepositoryCreationMigrateFromExternalRequest> = {
+  encode(
+    message: RepositoryCreationMigrateFromExternalRequest,
+    writer: BinaryWriter = new BinaryWriter(),
+  ): BinaryWriter {
+    if (message.name !== "") {
+      writer.uint32(10).string(message.name);
+    }
+    if (message.organisationId !== 0) {
+      writer.uint32(16).int64(message.organisationId);
+    }
+    if (message.sourceUrl !== "") {
+      writer.uint32(26).string(message.sourceUrl);
+    }
+    if (message.description !== "") {
+      writer.uint32(34).string(message.description);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): RepositoryCreationMigrateFromExternalRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseRepositoryCreationMigrateFromExternalRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.name = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 16) {
+            break;
+          }
+
+          message.organisationId = longToNumber(reader.int64());
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.sourceUrl = reader.string();
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.description = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): RepositoryCreationMigrateFromExternalRequest {
+    return {
+      name: isSet(object.name) ? globalThis.String(object.name) : "",
+      organisationId: isSet(object.organisationId) ? globalThis.Number(object.organisationId) : 0,
+      sourceUrl: isSet(object.sourceUrl) ? globalThis.String(object.sourceUrl) : "",
+      description: isSet(object.description) ? globalThis.String(object.description) : "",
+    };
+  },
+
+  toJSON(message: RepositoryCreationMigrateFromExternalRequest): unknown {
+    const obj: any = {};
+    if (message.name !== "") {
+      obj.name = message.name;
+    }
+    if (message.organisationId !== 0) {
+      obj.organisationId = Math.round(message.organisationId);
+    }
+    if (message.sourceUrl !== "") {
+      obj.sourceUrl = message.sourceUrl;
+    }
+    if (message.description !== "") {
+      obj.description = message.description;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<RepositoryCreationMigrateFromExternalRequest>, I>>(
+    base?: I,
+  ): RepositoryCreationMigrateFromExternalRequest {
+    return RepositoryCreationMigrateFromExternalRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<RepositoryCreationMigrateFromExternalRequest>, I>>(
+    object: I,
+  ): RepositoryCreationMigrateFromExternalRequest {
+    const message = createBaseRepositoryCreationMigrateFromExternalRequest();
+    message.name = object.name ?? "";
+    message.organisationId = object.organisationId ?? 0;
+    message.sourceUrl = object.sourceUrl ?? "";
+    message.description = object.description ?? "";
+    return message;
+  },
+};
+
+function createBaseRepositoryCreationMigrateFromExternalResponse(): RepositoryCreationMigrateFromExternalResponse {
+  return { success: false, localPath: "", message: "" };
+}
+
+export const RepositoryCreationMigrateFromExternalResponse: MessageFns<RepositoryCreationMigrateFromExternalResponse> =
+  {
+    encode(
+      message: RepositoryCreationMigrateFromExternalResponse,
+      writer: BinaryWriter = new BinaryWriter(),
+    ): BinaryWriter {
+      if (message.success !== false) {
+        writer.uint32(8).bool(message.success);
+      }
+      if (message.localPath !== "") {
+        writer.uint32(18).string(message.localPath);
+      }
+      if (message.message !== "") {
+        writer.uint32(26).string(message.message);
+      }
+      return writer;
+    },
+
+    decode(input: BinaryReader | Uint8Array, length?: number): RepositoryCreationMigrateFromExternalResponse {
+      const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseRepositoryCreationMigrateFromExternalResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 8) {
+              break;
+            }
+
+            message.success = reader.bool();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.localPath = reader.string();
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.message = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    },
+
+    fromJSON(object: any): RepositoryCreationMigrateFromExternalResponse {
+      return {
+        success: isSet(object.success) ? globalThis.Boolean(object.success) : false,
+        localPath: isSet(object.localPath) ? globalThis.String(object.localPath) : "",
+        message: isSet(object.message) ? globalThis.String(object.message) : "",
+      };
+    },
+
+    toJSON(message: RepositoryCreationMigrateFromExternalResponse): unknown {
+      const obj: any = {};
+      if (message.success !== false) {
+        obj.success = message.success;
+      }
+      if (message.localPath !== "") {
+        obj.localPath = message.localPath;
+      }
+      if (message.message !== "") {
+        obj.message = message.message;
+      }
+      return obj;
+    },
+
+    create<I extends Exact<DeepPartial<RepositoryCreationMigrateFromExternalResponse>, I>>(
+      base?: I,
+    ): RepositoryCreationMigrateFromExternalResponse {
+      return RepositoryCreationMigrateFromExternalResponse.fromPartial(base ?? ({} as any));
+    },
+    fromPartial<I extends Exact<DeepPartial<RepositoryCreationMigrateFromExternalResponse>, I>>(
+      object: I,
+    ): RepositoryCreationMigrateFromExternalResponse {
+      const message = createBaseRepositoryCreationMigrateFromExternalResponse();
+      message.success = object.success ?? false;
+      message.localPath = object.localPath ?? "";
+      message.message = object.message ?? "";
+      return message;
+    },
+  };
+
+function createBaseRepositoryCreationMigrateRequest(): RepositoryCreationMigrateRequest {
+  return { repositoryId: 0, newOrganisationId: 0 };
+}
+
+export const RepositoryCreationMigrateRequest: MessageFns<RepositoryCreationMigrateRequest> = {
+  encode(message: RepositoryCreationMigrateRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.repositoryId !== 0) {
+      writer.uint32(8).int64(message.repositoryId);
+    }
+    if (message.newOrganisationId !== 0) {
+      writer.uint32(16).int64(message.newOrganisationId);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): RepositoryCreationMigrateRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseRepositoryCreationMigrateRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
+            break;
+          }
+
+          message.repositoryId = longToNumber(reader.int64());
+          continue;
+        }
+        case 2: {
+          if (tag !== 16) {
+            break;
+          }
+
+          message.newOrganisationId = longToNumber(reader.int64());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): RepositoryCreationMigrateRequest {
+    return {
+      repositoryId: isSet(object.repositoryId) ? globalThis.Number(object.repositoryId) : 0,
+      newOrganisationId: isSet(object.newOrganisationId) ? globalThis.Number(object.newOrganisationId) : 0,
+    };
+  },
+
+  toJSON(message: RepositoryCreationMigrateRequest): unknown {
+    const obj: any = {};
+    if (message.repositoryId !== 0) {
+      obj.repositoryId = Math.round(message.repositoryId);
+    }
+    if (message.newOrganisationId !== 0) {
+      obj.newOrganisationId = Math.round(message.newOrganisationId);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<RepositoryCreationMigrateRequest>, I>>(
+    base?: I,
+  ): RepositoryCreationMigrateRequest {
+    return RepositoryCreationMigrateRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<RepositoryCreationMigrateRequest>, I>>(
+    object: I,
+  ): RepositoryCreationMigrateRequest {
+    const message = createBaseRepositoryCreationMigrateRequest();
+    message.repositoryId = object.repositoryId ?? 0;
+    message.newOrganisationId = object.newOrganisationId ?? 0;
+    return message;
+  },
+};
+
+function createBaseRepositoryCreationMigrateResponse(): RepositoryCreationMigrateResponse {
+  return { success: false, newLocalPath: "", message: "" };
+}
+
+export const RepositoryCreationMigrateResponse: MessageFns<RepositoryCreationMigrateResponse> = {
+  encode(message: RepositoryCreationMigrateResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.success !== false) {
+      writer.uint32(8).bool(message.success);
+    }
+    if (message.newLocalPath !== "") {
+      writer.uint32(18).string(message.newLocalPath);
+    }
+    if (message.message !== "") {
+      writer.uint32(26).string(message.message);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): RepositoryCreationMigrateResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseRepositoryCreationMigrateResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
+            break;
+          }
+
+          message.success = reader.bool();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.newLocalPath = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.message = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): RepositoryCreationMigrateResponse {
+    return {
+      success: isSet(object.success) ? globalThis.Boolean(object.success) : false,
+      newLocalPath: isSet(object.newLocalPath) ? globalThis.String(object.newLocalPath) : "",
+      message: isSet(object.message) ? globalThis.String(object.message) : "",
+    };
+  },
+
+  toJSON(message: RepositoryCreationMigrateResponse): unknown {
+    const obj: any = {};
+    if (message.success !== false) {
+      obj.success = message.success;
+    }
+    if (message.newLocalPath !== "") {
+      obj.newLocalPath = message.newLocalPath;
+    }
+    if (message.message !== "") {
+      obj.message = message.message;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<RepositoryCreationMigrateResponse>, I>>(
+    base?: I,
+  ): RepositoryCreationMigrateResponse {
+    return RepositoryCreationMigrateResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<RepositoryCreationMigrateResponse>, I>>(
+    object: I,
+  ): RepositoryCreationMigrateResponse {
+    const message = createBaseRepositoryCreationMigrateResponse();
+    message.success = object.success ?? false;
+    message.newLocalPath = object.newLocalPath ?? "";
+    message.message = object.message ?? "";
     return message;
   },
 };
@@ -3338,240 +3244,6 @@ export const SyncTaskListResponse: MessageFns<SyncTaskListResponse> = {
   fromPartial<I extends Exact<DeepPartial<SyncTaskListResponse>, I>>(object: I): SyncTaskListResponse {
     const message = createBaseSyncTaskListResponse();
     message.results = object.results?.map((e) => SyncTaskResponse.fromPartial(e)) || [];
-    return message;
-  },
-};
-
-function createBaseSyncTaskPartialUpdateRequest(): SyncTaskPartialUpdateRequest {
-  return { id: undefined, PartialUpdateFields: [], status: undefined, taskId: undefined, repository: 0 };
-}
-
-export const SyncTaskPartialUpdateRequest: MessageFns<SyncTaskPartialUpdateRequest> = {
-  encode(message: SyncTaskPartialUpdateRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.id !== undefined) {
-      writer.uint32(8).int64(message.id);
-    }
-    for (const v of message.PartialUpdateFields) {
-      writer.uint32(18).string(v!);
-    }
-    if (message.status !== undefined) {
-      writer.uint32(26).string(message.status);
-    }
-    if (message.taskId !== undefined) {
-      writer.uint32(34).string(message.taskId);
-    }
-    if (message.repository !== 0) {
-      writer.uint32(40).int64(message.repository);
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): SyncTaskPartialUpdateRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseSyncTaskPartialUpdateRequest();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 8) {
-            break;
-          }
-
-          message.id = longToNumber(reader.int64());
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.PartialUpdateFields.push(reader.string());
-          continue;
-        }
-        case 3: {
-          if (tag !== 26) {
-            break;
-          }
-
-          message.status = reader.string();
-          continue;
-        }
-        case 4: {
-          if (tag !== 34) {
-            break;
-          }
-
-          message.taskId = reader.string();
-          continue;
-        }
-        case 5: {
-          if (tag !== 40) {
-            break;
-          }
-
-          message.repository = longToNumber(reader.int64());
-          continue;
-        }
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-
-  fromJSON(object: any): SyncTaskPartialUpdateRequest {
-    return {
-      id: isSet(object.id) ? globalThis.Number(object.id) : undefined,
-      PartialUpdateFields: globalThis.Array.isArray(object?.PartialUpdateFields)
-        ? object.PartialUpdateFields.map((e: any) => globalThis.String(e))
-        : [],
-      status: isSet(object.status) ? globalThis.String(object.status) : undefined,
-      taskId: isSet(object.taskId) ? globalThis.String(object.taskId) : undefined,
-      repository: isSet(object.repository) ? globalThis.Number(object.repository) : 0,
-    };
-  },
-
-  toJSON(message: SyncTaskPartialUpdateRequest): unknown {
-    const obj: any = {};
-    if (message.id !== undefined) {
-      obj.id = Math.round(message.id);
-    }
-    if (message.PartialUpdateFields?.length) {
-      obj.PartialUpdateFields = message.PartialUpdateFields;
-    }
-    if (message.status !== undefined) {
-      obj.status = message.status;
-    }
-    if (message.taskId !== undefined) {
-      obj.taskId = message.taskId;
-    }
-    if (message.repository !== 0) {
-      obj.repository = Math.round(message.repository);
-    }
-    return obj;
-  },
-
-  create<I extends Exact<DeepPartial<SyncTaskPartialUpdateRequest>, I>>(base?: I): SyncTaskPartialUpdateRequest {
-    return SyncTaskPartialUpdateRequest.fromPartial(base ?? ({} as any));
-  },
-  fromPartial<I extends Exact<DeepPartial<SyncTaskPartialUpdateRequest>, I>>(object: I): SyncTaskPartialUpdateRequest {
-    const message = createBaseSyncTaskPartialUpdateRequest();
-    message.id = object.id ?? undefined;
-    message.PartialUpdateFields = object.PartialUpdateFields?.map((e) => e) || [];
-    message.status = object.status ?? undefined;
-    message.taskId = object.taskId ?? undefined;
-    message.repository = object.repository ?? 0;
-    return message;
-  },
-};
-
-function createBaseSyncTaskRequest(): SyncTaskRequest {
-  return { id: undefined, status: undefined, taskId: undefined, repository: 0 };
-}
-
-export const SyncTaskRequest: MessageFns<SyncTaskRequest> = {
-  encode(message: SyncTaskRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.id !== undefined) {
-      writer.uint32(8).int64(message.id);
-    }
-    if (message.status !== undefined) {
-      writer.uint32(18).string(message.status);
-    }
-    if (message.taskId !== undefined) {
-      writer.uint32(26).string(message.taskId);
-    }
-    if (message.repository !== 0) {
-      writer.uint32(32).int64(message.repository);
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): SyncTaskRequest {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseSyncTaskRequest();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 8) {
-            break;
-          }
-
-          message.id = longToNumber(reader.int64());
-          continue;
-        }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.status = reader.string();
-          continue;
-        }
-        case 3: {
-          if (tag !== 26) {
-            break;
-          }
-
-          message.taskId = reader.string();
-          continue;
-        }
-        case 4: {
-          if (tag !== 32) {
-            break;
-          }
-
-          message.repository = longToNumber(reader.int64());
-          continue;
-        }
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
-
-  fromJSON(object: any): SyncTaskRequest {
-    return {
-      id: isSet(object.id) ? globalThis.Number(object.id) : undefined,
-      status: isSet(object.status) ? globalThis.String(object.status) : undefined,
-      taskId: isSet(object.taskId) ? globalThis.String(object.taskId) : undefined,
-      repository: isSet(object.repository) ? globalThis.Number(object.repository) : 0,
-    };
-  },
-
-  toJSON(message: SyncTaskRequest): unknown {
-    const obj: any = {};
-    if (message.id !== undefined) {
-      obj.id = Math.round(message.id);
-    }
-    if (message.status !== undefined) {
-      obj.status = message.status;
-    }
-    if (message.taskId !== undefined) {
-      obj.taskId = message.taskId;
-    }
-    if (message.repository !== 0) {
-      obj.repository = Math.round(message.repository);
-    }
-    return obj;
-  },
-
-  create<I extends Exact<DeepPartial<SyncTaskRequest>, I>>(base?: I): SyncTaskRequest {
-    return SyncTaskRequest.fromPartial(base ?? ({} as any));
-  },
-  fromPartial<I extends Exact<DeepPartial<SyncTaskRequest>, I>>(object: I): SyncTaskRequest {
-    const message = createBaseSyncTaskRequest();
-    message.id = object.id ?? undefined;
-    message.status = object.status ?? undefined;
-    message.taskId = object.taskId ?? undefined;
-    message.repository = object.repository ?? 0;
     return message;
   },
 };
@@ -4170,10 +3842,10 @@ export const TaskStatusGetStatusResponse: MessageFns<TaskStatusGetStatusResponse
   },
 };
 
-export type GitMirrorRepositoryAdminControllerDefinition = typeof GitMirrorRepositoryAdminControllerDefinition;
-export const GitMirrorRepositoryAdminControllerDefinition = {
-  name: "GitMirrorRepositoryAdminController",
-  fullName: "config.repositories.GitMirrorRepositoryAdminController",
+export type GitMirrorRepositoryControllerDefinition = typeof GitMirrorRepositoryControllerDefinition;
+export const GitMirrorRepositoryControllerDefinition = {
+  name: "GitMirrorRepositoryController",
+  fullName: "config.repositories.GitMirrorRepositoryController",
   methods: {
     create: {
       name: "Create",
@@ -4226,7 +3898,7 @@ export const GitMirrorRepositoryAdminControllerDefinition = {
   },
 } as const;
 
-export interface GitMirrorRepositoryAdminControllerServiceImplementation<CallContextExt = {}> {
+export interface GitMirrorRepositoryControllerServiceImplementation<CallContextExt = {}> {
   create(
     request: GitMirrorRepositoryRequest,
     context: CallContext & CallContextExt,
@@ -4253,7 +3925,7 @@ export interface GitMirrorRepositoryAdminControllerServiceImplementation<CallCon
   ): Promise<DeepPartial<GitMirrorRepositoryResponse>>;
 }
 
-export interface GitMirrorRepositoryAdminControllerClient<CallOptionsExt = {}> {
+export interface GitMirrorRepositoryControllerClient<CallOptionsExt = {}> {
   create(
     request: DeepPartial<GitMirrorRepositoryRequest>,
     options?: CallOptions & CallOptionsExt,
@@ -4280,86 +3952,10 @@ export interface GitMirrorRepositoryAdminControllerClient<CallOptionsExt = {}> {
   ): Promise<GitMirrorRepositoryResponse>;
 }
 
-export type GitMirrorRepositoryMirroringControllerDefinition = typeof GitMirrorRepositoryMirroringControllerDefinition;
-export const GitMirrorRepositoryMirroringControllerDefinition = {
-  name: "GitMirrorRepositoryMirroringController",
-  fullName: "config.repositories.GitMirrorRepositoryMirroringController",
-  methods: {
-    createMirror: {
-      name: "CreateMirror",
-      requestType: GitMirrorRepositoryMirroringCreateMirrorRequest,
-      requestStream: false,
-      responseType: GitMirrorRepositoryMirroringCreateMirrorResponse,
-      responseStream: false,
-      options: {},
-    },
-  },
-} as const;
-
-export interface GitMirrorRepositoryMirroringControllerServiceImplementation<CallContextExt = {}> {
-  createMirror(
-    request: GitMirrorRepositoryMirroringCreateMirrorRequest,
-    context: CallContext & CallContextExt,
-  ): Promise<DeepPartial<GitMirrorRepositoryMirroringCreateMirrorResponse>>;
-}
-
-export interface GitMirrorRepositoryMirroringControllerClient<CallOptionsExt = {}> {
-  createMirror(
-    request: DeepPartial<GitMirrorRepositoryMirroringCreateMirrorRequest>,
-    options?: CallOptions & CallOptionsExt,
-  ): Promise<GitMirrorRepositoryMirroringCreateMirrorResponse>;
-}
-
-export type GitMirrorRepositoryReadControllerDefinition = typeof GitMirrorRepositoryReadControllerDefinition;
-export const GitMirrorRepositoryReadControllerDefinition = {
-  name: "GitMirrorRepositoryReadController",
-  fullName: "config.repositories.GitMirrorRepositoryReadController",
-  methods: {
-    list: {
-      name: "List",
-      requestType: GitMirrorRepositoryListRequest,
-      requestStream: false,
-      responseType: GitMirrorRepositoryListResponse,
-      responseStream: false,
-      options: {},
-    },
-    retrieve: {
-      name: "Retrieve",
-      requestType: GitMirrorRepositoryRetrieveRequest,
-      requestStream: false,
-      responseType: GitMirrorRepositoryResponse,
-      responseStream: false,
-      options: {},
-    },
-  },
-} as const;
-
-export interface GitMirrorRepositoryReadControllerServiceImplementation<CallContextExt = {}> {
-  list(
-    request: GitMirrorRepositoryListRequest,
-    context: CallContext & CallContextExt,
-  ): Promise<DeepPartial<GitMirrorRepositoryListResponse>>;
-  retrieve(
-    request: GitMirrorRepositoryRetrieveRequest,
-    context: CallContext & CallContextExt,
-  ): Promise<DeepPartial<GitMirrorRepositoryResponse>>;
-}
-
-export interface GitMirrorRepositoryReadControllerClient<CallOptionsExt = {}> {
-  list(
-    request: DeepPartial<GitMirrorRepositoryListRequest>,
-    options?: CallOptions & CallOptionsExt,
-  ): Promise<GitMirrorRepositoryListResponse>;
-  retrieve(
-    request: DeepPartial<GitMirrorRepositoryRetrieveRequest>,
-    options?: CallOptions & CallOptionsExt,
-  ): Promise<GitMirrorRepositoryResponse>;
-}
-
-export type GitRepositoryAdminControllerDefinition = typeof GitRepositoryAdminControllerDefinition;
-export const GitRepositoryAdminControllerDefinition = {
-  name: "GitRepositoryAdminController",
-  fullName: "config.repositories.GitRepositoryAdminController",
+export type GitRepositoryControllerDefinition = typeof GitRepositoryControllerDefinition;
+export const GitRepositoryControllerDefinition = {
+  name: "GitRepositoryController",
+  fullName: "config.repositories.GitRepositoryController",
   methods: {
     create: {
       name: "Create",
@@ -4412,7 +4008,7 @@ export const GitRepositoryAdminControllerDefinition = {
   },
 } as const;
 
-export interface GitRepositoryAdminControllerServiceImplementation<CallContextExt = {}> {
+export interface GitRepositoryControllerServiceImplementation<CallContextExt = {}> {
   create(
     request: GitRepositoryRequest,
     context: CallContext & CallContextExt,
@@ -4436,7 +4032,7 @@ export interface GitRepositoryAdminControllerServiceImplementation<CallContextEx
   ): Promise<DeepPartial<GitRepositoryResponse>>;
 }
 
-export interface GitRepositoryAdminControllerClient<CallOptionsExt = {}> {
+export interface GitRepositoryControllerClient<CallOptionsExt = {}> {
   create(
     request: DeepPartial<GitRepositoryRequest>,
     options?: CallOptions & CallOptionsExt,
@@ -4460,251 +4056,118 @@ export interface GitRepositoryAdminControllerClient<CallOptionsExt = {}> {
   ): Promise<GitRepositoryResponse>;
 }
 
-export type GitRepositoryCreationControllerDefinition = typeof GitRepositoryCreationControllerDefinition;
-export const GitRepositoryCreationControllerDefinition = {
-  name: "GitRepositoryCreationController",
-  fullName: "config.repositories.GitRepositoryCreationController",
+export type MirrorRepositoryControllerDefinition = typeof MirrorRepositoryControllerDefinition;
+export const MirrorRepositoryControllerDefinition = {
+  name: "MirrorRepositoryController",
+  fullName: "config.repositories.MirrorRepositoryController",
   methods: {
-    create: {
-      name: "Create",
-      requestType: GitRepositoryCreationCreateRequest,
+    createMirror: {
+      name: "CreateMirror",
+      requestType: MirrorRepositoryCreateMirrorRequest,
       requestStream: false,
-      responseType: GitRepositoryCreationCreateResponse,
+      responseType: MirrorRepositoryCreateMirrorResponse,
+      responseStream: false,
+      options: {},
+    },
+    syncNow: {
+      name: "SyncNow",
+      requestType: MirrorRepositorySyncNowRequest,
+      requestStream: false,
+      responseType: MirrorRepositorySyncNowResponse,
       responseStream: false,
       options: {},
     },
   },
 } as const;
 
-export interface GitRepositoryCreationControllerServiceImplementation<CallContextExt = {}> {
-  create(
-    request: GitRepositoryCreationCreateRequest,
+export interface MirrorRepositoryControllerServiceImplementation<CallContextExt = {}> {
+  createMirror(
+    request: MirrorRepositoryCreateMirrorRequest,
     context: CallContext & CallContextExt,
-  ): Promise<DeepPartial<GitRepositoryCreationCreateResponse>>;
+  ): Promise<DeepPartial<MirrorRepositoryCreateMirrorResponse>>;
+  syncNow(
+    request: MirrorRepositorySyncNowRequest,
+    context: CallContext & CallContextExt,
+  ): Promise<DeepPartial<MirrorRepositorySyncNowResponse>>;
 }
 
-export interface GitRepositoryCreationControllerClient<CallOptionsExt = {}> {
-  create(
-    request: DeepPartial<GitRepositoryCreationCreateRequest>,
+export interface MirrorRepositoryControllerClient<CallOptionsExt = {}> {
+  createMirror(
+    request: DeepPartial<MirrorRepositoryCreateMirrorRequest>,
     options?: CallOptions & CallOptionsExt,
-  ): Promise<GitRepositoryCreationCreateResponse>;
+  ): Promise<MirrorRepositoryCreateMirrorResponse>;
+  syncNow(
+    request: DeepPartial<MirrorRepositorySyncNowRequest>,
+    options?: CallOptions & CallOptionsExt,
+  ): Promise<MirrorRepositorySyncNowResponse>;
 }
 
-export type GitRepositoryMigrationControllerDefinition = typeof GitRepositoryMigrationControllerDefinition;
-export const GitRepositoryMigrationControllerDefinition = {
-  name: "GitRepositoryMigrationController",
-  fullName: "config.repositories.GitRepositoryMigrationController",
+export type RepositoryCreationControllerDefinition = typeof RepositoryCreationControllerDefinition;
+export const RepositoryCreationControllerDefinition = {
+  name: "RepositoryCreationController",
+  fullName: "config.repositories.RepositoryCreationController",
   methods: {
+    create: {
+      name: "Create",
+      requestType: RepositoryCreationCreateRequest,
+      requestStream: false,
+      responseType: RepositoryCreationCreateResponse,
+      responseStream: false,
+      options: {},
+    },
     migrate: {
       name: "Migrate",
-      requestType: GitRepositoryMigrationMigrateRequest,
+      requestType: RepositoryCreationMigrateRequest,
       requestStream: false,
-      responseType: GitRepositoryMigrationMigrateResponse,
+      responseType: RepositoryCreationMigrateResponse,
       responseStream: false,
       options: {},
     },
     migrateFromExternal: {
       name: "MigrateFromExternal",
-      requestType: GitRepositoryMigrationMigrateFromExternalRequest,
+      requestType: RepositoryCreationMigrateFromExternalRequest,
       requestStream: false,
-      responseType: GitRepositoryMigrationMigrateFromExternalResponse,
+      responseType: RepositoryCreationMigrateFromExternalResponse,
       responseStream: false,
       options: {},
     },
   },
 } as const;
 
-export interface GitRepositoryMigrationControllerServiceImplementation<CallContextExt = {}> {
+export interface RepositoryCreationControllerServiceImplementation<CallContextExt = {}> {
+  create(
+    request: RepositoryCreationCreateRequest,
+    context: CallContext & CallContextExt,
+  ): Promise<DeepPartial<RepositoryCreationCreateResponse>>;
   migrate(
-    request: GitRepositoryMigrationMigrateRequest,
+    request: RepositoryCreationMigrateRequest,
     context: CallContext & CallContextExt,
-  ): Promise<DeepPartial<GitRepositoryMigrationMigrateResponse>>;
+  ): Promise<DeepPartial<RepositoryCreationMigrateResponse>>;
   migrateFromExternal(
-    request: GitRepositoryMigrationMigrateFromExternalRequest,
+    request: RepositoryCreationMigrateFromExternalRequest,
     context: CallContext & CallContextExt,
-  ): Promise<DeepPartial<GitRepositoryMigrationMigrateFromExternalResponse>>;
+  ): Promise<DeepPartial<RepositoryCreationMigrateFromExternalResponse>>;
 }
 
-export interface GitRepositoryMigrationControllerClient<CallOptionsExt = {}> {
+export interface RepositoryCreationControllerClient<CallOptionsExt = {}> {
+  create(
+    request: DeepPartial<RepositoryCreationCreateRequest>,
+    options?: CallOptions & CallOptionsExt,
+  ): Promise<RepositoryCreationCreateResponse>;
   migrate(
-    request: DeepPartial<GitRepositoryMigrationMigrateRequest>,
+    request: DeepPartial<RepositoryCreationMigrateRequest>,
     options?: CallOptions & CallOptionsExt,
-  ): Promise<GitRepositoryMigrationMigrateResponse>;
+  ): Promise<RepositoryCreationMigrateResponse>;
   migrateFromExternal(
-    request: DeepPartial<GitRepositoryMigrationMigrateFromExternalRequest>,
+    request: DeepPartial<RepositoryCreationMigrateFromExternalRequest>,
     options?: CallOptions & CallOptionsExt,
-  ): Promise<GitRepositoryMigrationMigrateFromExternalResponse>;
+  ): Promise<RepositoryCreationMigrateFromExternalResponse>;
 }
 
-export type GitRepositoryReadControllerDefinition = typeof GitRepositoryReadControllerDefinition;
-export const GitRepositoryReadControllerDefinition = {
-  name: "GitRepositoryReadController",
-  fullName: "config.repositories.GitRepositoryReadController",
-  methods: {
-    list: {
-      name: "List",
-      requestType: GitRepositoryListRequest,
-      requestStream: false,
-      responseType: GitRepositoryListResponse,
-      responseStream: false,
-      options: {},
-    },
-    retrieve: {
-      name: "Retrieve",
-      requestType: GitRepositoryRetrieveRequest,
-      requestStream: false,
-      responseType: GitRepositoryResponse,
-      responseStream: false,
-      options: {},
-    },
-  },
-} as const;
-
-export interface GitRepositoryReadControllerServiceImplementation<CallContextExt = {}> {
-  list(
-    request: GitRepositoryListRequest,
-    context: CallContext & CallContextExt,
-  ): Promise<DeepPartial<GitRepositoryListResponse>>;
-  retrieve(
-    request: GitRepositoryRetrieveRequest,
-    context: CallContext & CallContextExt,
-  ): Promise<DeepPartial<GitRepositoryResponse>>;
-}
-
-export interface GitRepositoryReadControllerClient<CallOptionsExt = {}> {
-  list(
-    request: DeepPartial<GitRepositoryListRequest>,
-    options?: CallOptions & CallOptionsExt,
-  ): Promise<GitRepositoryListResponse>;
-  retrieve(
-    request: DeepPartial<GitRepositoryRetrieveRequest>,
-    options?: CallOptions & CallOptionsExt,
-  ): Promise<GitRepositoryResponse>;
-}
-
-export type GitRepositorySyncControllerDefinition = typeof GitRepositorySyncControllerDefinition;
-export const GitRepositorySyncControllerDefinition = {
-  name: "GitRepositorySyncController",
-  fullName: "config.repositories.GitRepositorySyncController",
-  methods: {
-    syncNow: {
-      name: "SyncNow",
-      requestType: GitRepositorySyncSyncNowRequest,
-      requestStream: false,
-      responseType: GitRepositorySyncSyncNowResponse,
-      responseStream: false,
-      options: {},
-    },
-  },
-} as const;
-
-export interface GitRepositorySyncControllerServiceImplementation<CallContextExt = {}> {
-  syncNow(
-    request: GitRepositorySyncSyncNowRequest,
-    context: CallContext & CallContextExt,
-  ): Promise<DeepPartial<GitRepositorySyncSyncNowResponse>>;
-}
-
-export interface GitRepositorySyncControllerClient<CallOptionsExt = {}> {
-  syncNow(
-    request: DeepPartial<GitRepositorySyncSyncNowRequest>,
-    options?: CallOptions & CallOptionsExt,
-  ): Promise<GitRepositorySyncSyncNowResponse>;
-}
-
-export type SyncTaskAdminControllerDefinition = typeof SyncTaskAdminControllerDefinition;
-export const SyncTaskAdminControllerDefinition = {
-  name: "SyncTaskAdminController",
-  fullName: "config.repositories.SyncTaskAdminController",
-  methods: {
-    create: {
-      name: "Create",
-      requestType: SyncTaskRequest,
-      requestStream: false,
-      responseType: SyncTaskResponse,
-      responseStream: false,
-      options: {},
-    },
-    destroy: {
-      name: "Destroy",
-      requestType: SyncTaskDestroyRequest,
-      requestStream: false,
-      responseType: Empty,
-      responseStream: false,
-      options: {},
-    },
-    list: {
-      name: "List",
-      requestType: SyncTaskListRequest,
-      requestStream: false,
-      responseType: SyncTaskListResponse,
-      responseStream: false,
-      options: {},
-    },
-    partialUpdate: {
-      name: "PartialUpdate",
-      requestType: SyncTaskPartialUpdateRequest,
-      requestStream: false,
-      responseType: SyncTaskResponse,
-      responseStream: false,
-      options: {},
-    },
-    retrieve: {
-      name: "Retrieve",
-      requestType: SyncTaskRetrieveRequest,
-      requestStream: false,
-      responseType: SyncTaskResponse,
-      responseStream: false,
-      options: {},
-    },
-    update: {
-      name: "Update",
-      requestType: SyncTaskRequest,
-      requestStream: false,
-      responseType: SyncTaskResponse,
-      responseStream: false,
-      options: {},
-    },
-  },
-} as const;
-
-export interface SyncTaskAdminControllerServiceImplementation<CallContextExt = {}> {
-  create(request: SyncTaskRequest, context: CallContext & CallContextExt): Promise<DeepPartial<SyncTaskResponse>>;
-  destroy(request: SyncTaskDestroyRequest, context: CallContext & CallContextExt): Promise<DeepPartial<Empty>>;
-  list(request: SyncTaskListRequest, context: CallContext & CallContextExt): Promise<DeepPartial<SyncTaskListResponse>>;
-  partialUpdate(
-    request: SyncTaskPartialUpdateRequest,
-    context: CallContext & CallContextExt,
-  ): Promise<DeepPartial<SyncTaskResponse>>;
-  retrieve(
-    request: SyncTaskRetrieveRequest,
-    context: CallContext & CallContextExt,
-  ): Promise<DeepPartial<SyncTaskResponse>>;
-  update(request: SyncTaskRequest, context: CallContext & CallContextExt): Promise<DeepPartial<SyncTaskResponse>>;
-}
-
-export interface SyncTaskAdminControllerClient<CallOptionsExt = {}> {
-  create(request: DeepPartial<SyncTaskRequest>, options?: CallOptions & CallOptionsExt): Promise<SyncTaskResponse>;
-  destroy(request: DeepPartial<SyncTaskDestroyRequest>, options?: CallOptions & CallOptionsExt): Promise<Empty>;
-  list(
-    request: DeepPartial<SyncTaskListRequest>,
-    options?: CallOptions & CallOptionsExt,
-  ): Promise<SyncTaskListResponse>;
-  partialUpdate(
-    request: DeepPartial<SyncTaskPartialUpdateRequest>,
-    options?: CallOptions & CallOptionsExt,
-  ): Promise<SyncTaskResponse>;
-  retrieve(
-    request: DeepPartial<SyncTaskRetrieveRequest>,
-    options?: CallOptions & CallOptionsExt,
-  ): Promise<SyncTaskResponse>;
-  update(request: DeepPartial<SyncTaskRequest>, options?: CallOptions & CallOptionsExt): Promise<SyncTaskResponse>;
-}
-
-export type SyncTaskReadControllerDefinition = typeof SyncTaskReadControllerDefinition;
-export const SyncTaskReadControllerDefinition = {
-  name: "SyncTaskReadController",
-  fullName: "config.repositories.SyncTaskReadController",
+export type SyncTaskControllerDefinition = typeof SyncTaskControllerDefinition;
+export const SyncTaskControllerDefinition = {
+  name: "SyncTaskController",
+  fullName: "config.repositories.SyncTaskController",
   methods: {
     list: {
       name: "List",
@@ -4725,7 +4188,7 @@ export const SyncTaskReadControllerDefinition = {
   },
 } as const;
 
-export interface SyncTaskReadControllerServiceImplementation<CallContextExt = {}> {
+export interface SyncTaskControllerServiceImplementation<CallContextExt = {}> {
   list(request: SyncTaskListRequest, context: CallContext & CallContextExt): Promise<DeepPartial<SyncTaskListResponse>>;
   retrieve(
     request: SyncTaskRetrieveRequest,
@@ -4733,7 +4196,7 @@ export interface SyncTaskReadControllerServiceImplementation<CallContextExt = {}
   ): Promise<DeepPartial<SyncTaskResponse>>;
 }
 
-export interface SyncTaskReadControllerClient<CallOptionsExt = {}> {
+export interface SyncTaskControllerClient<CallOptionsExt = {}> {
   list(
     request: DeepPartial<SyncTaskListRequest>,
     options?: CallOptions & CallOptionsExt,

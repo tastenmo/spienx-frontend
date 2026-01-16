@@ -13,7 +13,9 @@
   "dependencies": {
     "@bufbuild/protobuf": "^2.10.2",
     "@reduxjs/toolkit": "^2.0.1",
+    "@vitejs/plugin-react": "^4.2.1",
     "grpc-web": "^1.5.0",
+    "jsx-parser": "^1.0.4",
     "nice-grpc-common": "^2.0.2",
     "nice-grpc-web": "^3.3.9",
     "react": "^18.2.0",

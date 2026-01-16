@@ -1,22 +1,22 @@
 import {
-  GitMirrorRepositoryAdminControllerClient,
-  GitMirrorRepositoryAdminControllerDefinition,
+  GitMirrorRepositoryControllerClient,
+  GitMirrorRepositoryControllerDefinition,
   GitMirrorRepositoryPartialUpdateRequest,
   GitMirrorRepositoryRequest,
-  GitRepositoryAdminControllerClient,
-  GitRepositoryAdminControllerDefinition,
+  GitRepositoryControllerClient,
+  GitRepositoryControllerDefinition,
   GitRepositoryPartialUpdateRequest,
   GitRepositoryRequest,
 } from '../proto/repositories';
 import { channel, clientFactory } from '../utils/grpc';
 
 class AdminService {
-  private repoAdminClient: GitRepositoryAdminControllerClient;
-  private mirrorAdminClient: GitMirrorRepositoryAdminControllerClient;
+  private repoAdminClient: GitRepositoryControllerClient;
+  private mirrorAdminClient: GitMirrorRepositoryControllerClient;
 
   constructor() {
-    this.repoAdminClient = clientFactory.create(GitRepositoryAdminControllerDefinition, channel);
-    this.mirrorAdminClient = clientFactory.create(GitMirrorRepositoryAdminControllerDefinition, channel);
+    this.repoAdminClient = clientFactory.create(GitRepositoryControllerDefinition, channel);
+    this.mirrorAdminClient = clientFactory.create(GitMirrorRepositoryControllerDefinition, channel);
   }
 
   async createRepository(payload: Omit<GitRepositoryRequest, 'id'>) {

@@ -1,18 +1,18 @@
 import { 
-  GitRepositoryAdminControllerDefinition,
-  GitRepositoryAdminControllerClient,
-  GitRepositoryCreationControllerDefinition,
-  GitRepositoryCreationControllerClient
+  GitRepositoryControllerDefinition,
+  GitRepositoryControllerClient,
+  RepositoryCreationControllerDefinition,
+  RepositoryCreationControllerClient
 } from '../proto/repositories';
 import { channel, clientFactory } from '../utils/grpc';
 
 class GitService {
-  private adminClient: GitRepositoryAdminControllerClient;
-  private creationClient: GitRepositoryCreationControllerClient;
+  private adminClient: GitRepositoryControllerClient;
+  private creationClient: RepositoryCreationControllerClient;
 
   constructor() {
-    this.adminClient = clientFactory.create(GitRepositoryAdminControllerDefinition, channel);
-    this.creationClient = clientFactory.create(GitRepositoryCreationControllerDefinition, channel);
+    this.adminClient = clientFactory.create(GitRepositoryControllerDefinition, channel);
+    this.creationClient = clientFactory.create(RepositoryCreationControllerDefinition, channel);
   }
 
   // Create a new repository

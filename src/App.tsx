@@ -1,6 +1,12 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
+import { Provider as ReduxProvider } from 'react-redux'
+import { viewerStore } from './apps/viewer/store/store'
+import { store as gitStore } from './store/store'
+import ViewerLayout from './apps/shared/layouts/ViewerLayout'
 import AppLayout from './components/AppLayout'
+import Viewer from './apps/viewer/pages/Viewer'
+import Documents from './apps/viewer/pages/Documents'
 import Home from './pages/Home'
 import About from './pages/About'
 import Contact from './pages/Contact'
@@ -22,8 +28,6 @@ interface User {
 }
 
 import { getCookie } from './utils/csrf';
-
-// ...existing code...
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -93,15 +97,37 @@ function App() {
         ) : (
           <>
             <Route path="/login" element={<Navigate to="/" replace />} />
-            <Route path="/" element={<AppLayout user={user} onLogout={handleLogout}><Home /></AppLayout>} />
-            <Route path="/about" element={<AppLayout user={user} onLogout={handleLogout}><About /></AppLayout>} />
-            <Route path="/contact" element={<AppLayout user={user} onLogout={handleLogout}><Contact /></AppLayout>} />
-            <Route path="/repositories" element={<AppLayout user={user} onLogout={handleLogout}><Repositories /></AppLayout>} />
-            <Route path="/repositories/new" element={<AppLayout user={user} onLogout={handleLogout}><CreateRepository /></AppLayout>} />
-            <Route path="/repositories/:id" element={<AppLayout user={user} onLogout={handleLogout}><RepositoryDetail /></AppLayout>} />
-            <Route path="/mirrors" element={<AppLayout user={user} onLogout={handleLogout}><Mirrors /></AppLayout>} />
-            <Route path="/migrations" element={<AppLayout user={user} onLogout={handleLogout}><Migrations /></AppLayout>} />
-            <Route path="*" element={<AppLayout user={user} onLogout={handleLogout}><NotFound /></AppLayout>} />
+            
+            {/* Viewer App Routes */}
+            <Route path="/documents/*" element={
+              <ReduxProvider store={viewerStore}>
+                <ViewerLayout user={user} onLogout={handleLogout}>
+                  <Routes>
+                    <Route index element={<Documents />} />
+                    <Route path=":id" element={<Viewer />} />
+                  </Routes>
+                </ViewerLayout>
+              </ReduxProvider>
+            } />
+            
+            {/* Git Management App Routes */}
+            <Route path="/*" element={
+              <ReduxProvider store={gitStore}>
+                <AppLayout user={user} onLogout={handleLogout}>
+                  <Routes>
+                    <Route path="/" element={<Home />} />
+                    <Route path="/about" element={<About />} />
+                    <Route path="/contact" element={<Contact />} />
+                    <Route path="/repositories" element={<Repositories />} />
+                    <Route path="/repositories/new" element={<CreateRepository />} />
+                    <Route path="/repositories/:id" element={<RepositoryDetail />} />
+                    <Route path="/mirrors" element={<Mirrors />} />
+                    <Route path="/migrations" element={<Migrations />} />
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </AppLayout>
+              </ReduxProvider>
+            } />
           </>
         )}
       </Routes>
@@ -109,4 +135,4 @@ function App() {
   );
 }
 
-export default App
+export default App;

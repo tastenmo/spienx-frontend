@@ -1,14 +1,12 @@
 import {
-  GitMirrorRepositoryMirroringControllerClient,
-  GitMirrorRepositoryMirroringControllerDefinition,
-  GitMirrorRepositoryMirroringCreateMirrorRequest,
-  GitRepositoryCreationControllerClient,
-  GitRepositoryCreationControllerDefinition,
-  GitRepositoryCreationCreateRequest,
-  GitRepositoryMigrationControllerClient,
-  GitRepositoryMigrationControllerDefinition,
-  GitRepositoryMigrationMigrateRequest,
-  GitRepositoryMigrationMigrateFromExternalRequest,
+  MirrorRepositoryControllerClient,
+  MirrorRepositoryControllerDefinition,
+  MirrorRepositoryCreateMirrorRequest,
+  RepositoryCreationControllerClient,
+  RepositoryCreationControllerDefinition,
+  RepositoryCreationCreateRequest,
+  RepositoryCreationMigrateRequest,
+  RepositoryCreationMigrateFromExternalRequest,
   TaskStatusControllerClient,
   TaskStatusControllerDefinition,
   TaskStatusGetStatusRequest,
@@ -16,31 +14,29 @@ import {
 import { channel, clientFactory } from '../utils/grpc';
 
 class UserRepoService {
-  private creationClient: GitRepositoryCreationControllerClient;
-  private migrationClient: GitRepositoryMigrationControllerClient;
-  private mirrorClient: GitMirrorRepositoryMirroringControllerClient;
+  private creationClient: RepositoryCreationControllerClient;
+  private mirrorClient: MirrorRepositoryControllerClient;
   private statusClient: TaskStatusControllerClient;
 
   constructor() {
-    this.creationClient = clientFactory.create(GitRepositoryCreationControllerDefinition, channel);
-    this.migrationClient = clientFactory.create(GitRepositoryMigrationControllerDefinition, channel);
-    this.mirrorClient = clientFactory.create(GitMirrorRepositoryMirroringControllerDefinition, channel);
+    this.creationClient = clientFactory.create(RepositoryCreationControllerDefinition, channel);
+    this.mirrorClient = clientFactory.create(MirrorRepositoryControllerDefinition, channel);
     this.statusClient = clientFactory.create(TaskStatusControllerDefinition, channel);
   }
 
-  async createRepository(payload: GitRepositoryCreationCreateRequest) {
+  async createRepository(payload: RepositoryCreationCreateRequest) {
     return this.creationClient.create(payload);
   }
 
-  async migrateRepository(payload: GitRepositoryMigrationMigrateRequest) {
-    return this.migrationClient.migrate(payload);
+  async migrateRepository(payload: RepositoryCreationMigrateRequest) {
+    return this.creationClient.migrate(payload);
   }
 
-  async migrateFromExternal(payload: GitRepositoryMigrationMigrateFromExternalRequest) {
-    return this.migrationClient.migrateFromExternal(payload);
+  async migrateFromExternal(payload: RepositoryCreationMigrateFromExternalRequest) {
+    return this.creationClient.migrateFromExternal(payload);
   }
 
-  async createMirror(payload: GitMirrorRepositoryMirroringCreateMirrorRequest) {
+  async createMirror(payload: MirrorRepositoryCreateMirrorRequest) {
     return this.mirrorClient.createMirror(payload);
   }
 
