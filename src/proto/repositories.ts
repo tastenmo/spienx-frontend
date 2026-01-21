@@ -82,11 +82,26 @@ export interface GitRepositoryDestroyRequest {
   id: number;
 }
 
+export interface GitRepositoryListRefsRequest {
+  repositoryId: number;
+}
+
+export interface GitRepositoryListRefsResponse {
+  branches: string;
+  tags: string;
+}
+
 export interface GitRepositoryListRequest {
 }
 
 export interface GitRepositoryListResponse {
   results: GitRepositoryResponse[];
+}
+
+export interface GitRepositoryListTreeRequest {
+  repositoryId: number;
+  reference: string;
+  path: string;
 }
 
 export interface GitRepositoryPartialUpdateRequest {
@@ -188,6 +203,19 @@ export interface RepositoryCreationMigrateResponse {
   success: boolean;
   newLocalPath: string;
   message: string;
+}
+
+export interface RepositoryTreeEntryListResponse {
+  results: RepositoryTreeEntryResponse[];
+}
+
+export interface RepositoryTreeEntryResponse {
+  name: string;
+  type: string;
+  path: string;
+  size?: number | undefined;
+  mode?: number | undefined;
+  sha?: string | undefined;
 }
 
 export interface SyncTaskListRequest {
@@ -1398,6 +1426,142 @@ export const GitRepositoryDestroyRequest: MessageFns<GitRepositoryDestroyRequest
   },
 };
 
+function createBaseGitRepositoryListRefsRequest(): GitRepositoryListRefsRequest {
+  return { repositoryId: 0 };
+}
+
+export const GitRepositoryListRefsRequest: MessageFns<GitRepositoryListRefsRequest> = {
+  encode(message: GitRepositoryListRefsRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.repositoryId !== 0) {
+      writer.uint32(8).int64(message.repositoryId);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GitRepositoryListRefsRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseGitRepositoryListRefsRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
+            break;
+          }
+
+          message.repositoryId = longToNumber(reader.int64());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): GitRepositoryListRefsRequest {
+    return { repositoryId: isSet(object.repositoryId) ? globalThis.Number(object.repositoryId) : 0 };
+  },
+
+  toJSON(message: GitRepositoryListRefsRequest): unknown {
+    const obj: any = {};
+    if (message.repositoryId !== 0) {
+      obj.repositoryId = Math.round(message.repositoryId);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<GitRepositoryListRefsRequest>, I>>(base?: I): GitRepositoryListRefsRequest {
+    return GitRepositoryListRefsRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<GitRepositoryListRefsRequest>, I>>(object: I): GitRepositoryListRefsRequest {
+    const message = createBaseGitRepositoryListRefsRequest();
+    message.repositoryId = object.repositoryId ?? 0;
+    return message;
+  },
+};
+
+function createBaseGitRepositoryListRefsResponse(): GitRepositoryListRefsResponse {
+  return { branches: "", tags: "" };
+}
+
+export const GitRepositoryListRefsResponse: MessageFns<GitRepositoryListRefsResponse> = {
+  encode(message: GitRepositoryListRefsResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.branches !== "") {
+      writer.uint32(10).string(message.branches);
+    }
+    if (message.tags !== "") {
+      writer.uint32(18).string(message.tags);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GitRepositoryListRefsResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseGitRepositoryListRefsResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.branches = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.tags = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): GitRepositoryListRefsResponse {
+    return {
+      branches: isSet(object.branches) ? globalThis.String(object.branches) : "",
+      tags: isSet(object.tags) ? globalThis.String(object.tags) : "",
+    };
+  },
+
+  toJSON(message: GitRepositoryListRefsResponse): unknown {
+    const obj: any = {};
+    if (message.branches !== "") {
+      obj.branches = message.branches;
+    }
+    if (message.tags !== "") {
+      obj.tags = message.tags;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<GitRepositoryListRefsResponse>, I>>(base?: I): GitRepositoryListRefsResponse {
+    return GitRepositoryListRefsResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<GitRepositoryListRefsResponse>, I>>(
+    object: I,
+  ): GitRepositoryListRefsResponse {
+    const message = createBaseGitRepositoryListRefsResponse();
+    message.branches = object.branches ?? "";
+    message.tags = object.tags ?? "";
+    return message;
+  },
+};
+
 function createBaseGitRepositoryListRequest(): GitRepositoryListRequest {
   return {};
 }
@@ -1499,6 +1663,98 @@ export const GitRepositoryListResponse: MessageFns<GitRepositoryListResponse> = 
   fromPartial<I extends Exact<DeepPartial<GitRepositoryListResponse>, I>>(object: I): GitRepositoryListResponse {
     const message = createBaseGitRepositoryListResponse();
     message.results = object.results?.map((e) => GitRepositoryResponse.fromPartial(e)) || [];
+    return message;
+  },
+};
+
+function createBaseGitRepositoryListTreeRequest(): GitRepositoryListTreeRequest {
+  return { repositoryId: 0, reference: "", path: "" };
+}
+
+export const GitRepositoryListTreeRequest: MessageFns<GitRepositoryListTreeRequest> = {
+  encode(message: GitRepositoryListTreeRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.repositoryId !== 0) {
+      writer.uint32(8).int64(message.repositoryId);
+    }
+    if (message.reference !== "") {
+      writer.uint32(18).string(message.reference);
+    }
+    if (message.path !== "") {
+      writer.uint32(26).string(message.path);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GitRepositoryListTreeRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseGitRepositoryListTreeRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
+            break;
+          }
+
+          message.repositoryId = longToNumber(reader.int64());
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.reference = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.path = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): GitRepositoryListTreeRequest {
+    return {
+      repositoryId: isSet(object.repositoryId) ? globalThis.Number(object.repositoryId) : 0,
+      reference: isSet(object.reference) ? globalThis.String(object.reference) : "",
+      path: isSet(object.path) ? globalThis.String(object.path) : "",
+    };
+  },
+
+  toJSON(message: GitRepositoryListTreeRequest): unknown {
+    const obj: any = {};
+    if (message.repositoryId !== 0) {
+      obj.repositoryId = Math.round(message.repositoryId);
+    }
+    if (message.reference !== "") {
+      obj.reference = message.reference;
+    }
+    if (message.path !== "") {
+      obj.path = message.path;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<GitRepositoryListTreeRequest>, I>>(base?: I): GitRepositoryListTreeRequest {
+    return GitRepositoryListTreeRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<GitRepositoryListTreeRequest>, I>>(object: I): GitRepositoryListTreeRequest {
+    const message = createBaseGitRepositoryListTreeRequest();
+    message.repositoryId = object.repositoryId ?? 0;
+    message.reference = object.reference ?? "";
+    message.path = object.path ?? "";
     return message;
   },
 };
@@ -3143,6 +3399,210 @@ export const RepositoryCreationMigrateResponse: MessageFns<RepositoryCreationMig
   },
 };
 
+function createBaseRepositoryTreeEntryListResponse(): RepositoryTreeEntryListResponse {
+  return { results: [] };
+}
+
+export const RepositoryTreeEntryListResponse: MessageFns<RepositoryTreeEntryListResponse> = {
+  encode(message: RepositoryTreeEntryListResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    for (const v of message.results) {
+      RepositoryTreeEntryResponse.encode(v!, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): RepositoryTreeEntryListResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseRepositoryTreeEntryListResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.results.push(RepositoryTreeEntryResponse.decode(reader, reader.uint32()));
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): RepositoryTreeEntryListResponse {
+    return {
+      results: globalThis.Array.isArray(object?.results)
+        ? object.results.map((e: any) => RepositoryTreeEntryResponse.fromJSON(e))
+        : [],
+    };
+  },
+
+  toJSON(message: RepositoryTreeEntryListResponse): unknown {
+    const obj: any = {};
+    if (message.results?.length) {
+      obj.results = message.results.map((e) => RepositoryTreeEntryResponse.toJSON(e));
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<RepositoryTreeEntryListResponse>, I>>(base?: I): RepositoryTreeEntryListResponse {
+    return RepositoryTreeEntryListResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<RepositoryTreeEntryListResponse>, I>>(
+    object: I,
+  ): RepositoryTreeEntryListResponse {
+    const message = createBaseRepositoryTreeEntryListResponse();
+    message.results = object.results?.map((e) => RepositoryTreeEntryResponse.fromPartial(e)) || [];
+    return message;
+  },
+};
+
+function createBaseRepositoryTreeEntryResponse(): RepositoryTreeEntryResponse {
+  return { name: "", type: "", path: "", size: undefined, mode: undefined, sha: undefined };
+}
+
+export const RepositoryTreeEntryResponse: MessageFns<RepositoryTreeEntryResponse> = {
+  encode(message: RepositoryTreeEntryResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.name !== "") {
+      writer.uint32(10).string(message.name);
+    }
+    if (message.type !== "") {
+      writer.uint32(18).string(message.type);
+    }
+    if (message.path !== "") {
+      writer.uint32(26).string(message.path);
+    }
+    if (message.size !== undefined) {
+      writer.uint32(32).int32(message.size);
+    }
+    if (message.mode !== undefined) {
+      writer.uint32(40).int32(message.mode);
+    }
+    if (message.sha !== undefined) {
+      writer.uint32(50).string(message.sha);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): RepositoryTreeEntryResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseRepositoryTreeEntryResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.name = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.type = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.path = reader.string();
+          continue;
+        }
+        case 4: {
+          if (tag !== 32) {
+            break;
+          }
+
+          message.size = reader.int32();
+          continue;
+        }
+        case 5: {
+          if (tag !== 40) {
+            break;
+          }
+
+          message.mode = reader.int32();
+          continue;
+        }
+        case 6: {
+          if (tag !== 50) {
+            break;
+          }
+
+          message.sha = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): RepositoryTreeEntryResponse {
+    return {
+      name: isSet(object.name) ? globalThis.String(object.name) : "",
+      type: isSet(object.type) ? globalThis.String(object.type) : "",
+      path: isSet(object.path) ? globalThis.String(object.path) : "",
+      size: isSet(object.size) ? globalThis.Number(object.size) : undefined,
+      mode: isSet(object.mode) ? globalThis.Number(object.mode) : undefined,
+      sha: isSet(object.sha) ? globalThis.String(object.sha) : undefined,
+    };
+  },
+
+  toJSON(message: RepositoryTreeEntryResponse): unknown {
+    const obj: any = {};
+    if (message.name !== "") {
+      obj.name = message.name;
+    }
+    if (message.type !== "") {
+      obj.type = message.type;
+    }
+    if (message.path !== "") {
+      obj.path = message.path;
+    }
+    if (message.size !== undefined) {
+      obj.size = Math.round(message.size);
+    }
+    if (message.mode !== undefined) {
+      obj.mode = Math.round(message.mode);
+    }
+    if (message.sha !== undefined) {
+      obj.sha = message.sha;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<RepositoryTreeEntryResponse>, I>>(base?: I): RepositoryTreeEntryResponse {
+    return RepositoryTreeEntryResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<RepositoryTreeEntryResponse>, I>>(object: I): RepositoryTreeEntryResponse {
+    const message = createBaseRepositoryTreeEntryResponse();
+    message.name = object.name ?? "";
+    message.type = object.type ?? "";
+    message.path = object.path ?? "";
+    message.size = object.size ?? undefined;
+    message.mode = object.mode ?? undefined;
+    message.sha = object.sha ?? undefined;
+    return message;
+  },
+};
+
 function createBaseSyncTaskListRequest(): SyncTaskListRequest {
   return {};
 }
@@ -3981,6 +4441,22 @@ export const GitRepositoryControllerDefinition = {
       responseStream: false,
       options: {},
     },
+    listRefs: {
+      name: "ListRefs",
+      requestType: GitRepositoryListRefsRequest,
+      requestStream: false,
+      responseType: GitRepositoryListRefsResponse,
+      responseStream: false,
+      options: {},
+    },
+    listTree: {
+      name: "ListTree",
+      requestType: GitRepositoryListTreeRequest,
+      requestStream: false,
+      responseType: RepositoryTreeEntryListResponse,
+      responseStream: false,
+      options: {},
+    },
     partialUpdate: {
       name: "PartialUpdate",
       requestType: GitRepositoryPartialUpdateRequest,
@@ -4018,6 +4494,14 @@ export interface GitRepositoryControllerServiceImplementation<CallContextExt = {
     request: GitRepositoryListRequest,
     context: CallContext & CallContextExt,
   ): Promise<DeepPartial<GitRepositoryListResponse>>;
+  listRefs(
+    request: GitRepositoryListRefsRequest,
+    context: CallContext & CallContextExt,
+  ): Promise<DeepPartial<GitRepositoryListRefsResponse>>;
+  listTree(
+    request: GitRepositoryListTreeRequest,
+    context: CallContext & CallContextExt,
+  ): Promise<DeepPartial<RepositoryTreeEntryListResponse>>;
   partialUpdate(
     request: GitRepositoryPartialUpdateRequest,
     context: CallContext & CallContextExt,
@@ -4042,6 +4526,14 @@ export interface GitRepositoryControllerClient<CallOptionsExt = {}> {
     request: DeepPartial<GitRepositoryListRequest>,
     options?: CallOptions & CallOptionsExt,
   ): Promise<GitRepositoryListResponse>;
+  listRefs(
+    request: DeepPartial<GitRepositoryListRefsRequest>,
+    options?: CallOptions & CallOptionsExt,
+  ): Promise<GitRepositoryListRefsResponse>;
+  listTree(
+    request: DeepPartial<GitRepositoryListTreeRequest>,
+    options?: CallOptions & CallOptionsExt,
+  ): Promise<RepositoryTreeEntryListResponse>;
   partialUpdate(
     request: DeepPartial<GitRepositoryPartialUpdateRequest>,
     options?: CallOptions & CallOptionsExt,

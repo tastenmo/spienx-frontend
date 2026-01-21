@@ -1,19 +1,24 @@
 import {
-  DocumentReadControllerDefinition,
-  DocumentReadControllerClient,
+  DocumentControllerDefinition,
+  DocumentControllerClient,
+  BuildReadControllerDefinition,
+  BuildReadControllerClient,
   DocumentListRequest,
   DocumentRetrieveRequest,
-  DocumentReadStreamPagesRequest,
-  DocumentResponse,
-  PageResponse
+  BuildListRequest,
+  BuildReadStreamPagesRequest,
+  PageResponse,
+  DocumentCreateAndStartBuildRequest
 } from '../proto/documents';
 import { channel, clientFactory } from '../utils/grpc';
 
 class DocumentService {
-  private client: DocumentReadControllerClient;
+  private docClient: DocumentControllerClient;
+  private buildClient: BuildReadControllerClient;
 
   constructor() {
-    this.client = clientFactory.create(DocumentReadControllerDefinition, channel);
+    this.docClient = clientFactory.create(DocumentControllerDefinition, channel);
+    this.buildClient = clientFactory.create(BuildReadControllerDefinition, channel);
   }
 
   /**
@@ -21,20 +26,24 @@ class DocumentService {
    */
   async listDocuments() {
     const request: DocumentListRequest = {};
-    const response = await this.client.list(request);
+    const response = await this.docClient.list(request);
     return {
       documents: (response.results || []).map(doc => ({
         id: doc.id,
         title: doc.title,
         source: doc.source,
-        reference: doc.reference,
-        workdir: doc.workdir,
-        confPath: doc.confPath,
-        lastBuildAt: doc.lastBuildAt,
-        globalContext: doc.globalContext
       })),
       totalCount: (response.results || []).length
     };
+  }
+
+  /**
+   * List builds for a document
+   */
+  async listBuilds(documentId: number) {
+    const request: BuildListRequest = { documentId };
+    const response = await this.buildClient.list(request);
+    return response.results || [];
   }
 
   /**
@@ -42,26 +51,42 @@ class DocumentService {
    */
   async getDocument(documentId: number) {
     const request: DocumentRetrieveRequest = { id: documentId };
-    const response = await this.client.retrieve(request);
+    const response = await this.docClient.retrieve(request);
     return {
       id: response.id,
       title: response.title,
       source: response.source,
-      reference: response.reference,
-      workdir: response.workdir,
-      confPath: response.confPath,
-      lastBuildAt: response.lastBuildAt,
-      globalContext: response.globalContext
     };
   }
 
   /**
-   * Stream pages from a document (useful for large documents)
-   * Returns an async iterator of PageResponse objects
+   * Create and start a build
    */
-  async *streamPages(documentId: number): AsyncGenerator<PageResponse, void, unknown> {
-    const request: DocumentReadStreamPagesRequest = { documentId };
-    const stream = this.client.streamPages(request);
+  async createAndStartBuild(data: {
+    title: string;
+    source: number;
+    reference: string;
+    workdir: string;
+    confPath: string;
+    startImmediately: boolean;
+  }) {
+    const request: DocumentCreateAndStartBuildRequest = {
+      title: data.title,
+      source: data.source,
+      reference: data.reference,
+      workdir: data.workdir,
+      confPath: data.confPath,
+      startImmediately: data.startImmediately
+    };
+    return await this.docClient.createAndStartBuild(request);
+  }
+
+  /**
+   * Stream pages from a build 
+   */
+  async *streamPages(buildId: number): AsyncGenerator<PageResponse, void, unknown> {
+    const request: BuildReadStreamPagesRequest = { buildId };
+    const stream = this.buildClient.streamPages(request);
     
     for await (const page of stream) {
       yield page;
@@ -69,14 +94,16 @@ class DocumentService {
   }
 
   /**
-   * Helper method to collect all pages from a document stream
+   * Helper method to collect all pages from a build stream, mapped by path
    */
-  async getDocumentPages(documentId: number): Promise<PageResponse[]> {
-    const pages: PageResponse[] = [];
-    for await (const page of this.streamPages(documentId)) {
-      pages.push(page);
+  async getDocumentPages(buildId: number): Promise<PageResponse[]> {
+    const pagesMap = new Map<string, PageResponse>();
+    for await (const page of this.streamPages(buildId)) {
+      if (page.path) {
+        pagesMap.set(page.path, page);
+      }
     }
-    return pages;
+    return Array.from(pagesMap.values());
   }
 }
 

@@ -7,13 +7,57 @@
 /* eslint-disable */
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import type { CallContext, CallOptions } from "nice-grpc-common";
+import { Empty } from "./google/protobuf/empty";
 import { Struct } from "./google/protobuf/struct";
 
 export const protobufPackage = "config.documents";
 
+export interface BuildListResponse {
+  results: BuildResponse[];
+}
+
+export interface BuildReadListRequest {
+  document: number;
+}
+
+export interface BuildReadStartBuildRequest {
+  buildId: number;
+}
+
+export interface BuildReadStreamPagesRequest {
+  buildId: number;
+}
+
+export interface BuildResponse {
+  id?: number | undefined;
+  document: number;
+  reference: string;
+  workdir: string;
+  confPath: string;
+  lastBuildAt?: string | undefined;
+  globalContext?: { [key: string]: any } | undefined;
+}
+
+export interface BuildRetrieveRequest {
+  id: number;
+}
+
 export interface ContentBlockResponse {
   contentHash: string;
   jsxContent: string;
+}
+
+export interface DocumentCreateAndStartBuildRequest {
+  title: string;
+  source: number;
+  reference: string;
+  workdir: string;
+  confPath: string;
+  startImmediately: boolean;
+}
+
+export interface DocumentDestroyRequest {
+  id: number;
 }
 
 export interface DocumentListRequest {
@@ -23,19 +67,23 @@ export interface DocumentListResponse {
   results: DocumentResponse[];
 }
 
-export interface DocumentReadStreamPagesRequest {
-  documentId: number;
+export interface DocumentPartialUpdateRequest {
+  id?: number | undefined;
+  title: string;
+  source: number;
+  PartialUpdateFields: string[];
+}
+
+export interface DocumentRequest {
+  id?: number | undefined;
+  title: string;
+  source: number;
 }
 
 export interface DocumentResponse {
   id?: number | undefined;
   title: string;
   source: number;
-  reference: string;
-  workdir: string;
-  confPath: string;
-  lastBuildAt?: string | undefined;
-  globalContext?: { [key: string]: any } | undefined;
 }
 
 export interface DocumentRetrieveRequest {
@@ -43,10 +91,11 @@ export interface DocumentRetrieveRequest {
 }
 
 export interface PageResponse {
-  currentPageName: string;
   title: string;
   context?: { [key: string]: any } | undefined;
   sections: SectionResponse[];
+  path: string;
+  jsxContent: string;
 }
 
 export interface SectionResponse {
@@ -58,6 +107,464 @@ export interface SectionResponse {
   endLine: number;
   contentBlock?: ContentBlockResponse | undefined;
 }
+
+function createBaseBuildListResponse(): BuildListResponse {
+  return { results: [] };
+}
+
+export const BuildListResponse: MessageFns<BuildListResponse> = {
+  encode(message: BuildListResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    for (const v of message.results) {
+      BuildResponse.encode(v!, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): BuildListResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseBuildListResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.results.push(BuildResponse.decode(reader, reader.uint32()));
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): BuildListResponse {
+    return {
+      results: globalThis.Array.isArray(object?.results)
+        ? object.results.map((e: any) => BuildResponse.fromJSON(e))
+        : [],
+    };
+  },
+
+  toJSON(message: BuildListResponse): unknown {
+    const obj: any = {};
+    if (message.results?.length) {
+      obj.results = message.results.map((e) => BuildResponse.toJSON(e));
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<BuildListResponse>, I>>(base?: I): BuildListResponse {
+    return BuildListResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<BuildListResponse>, I>>(object: I): BuildListResponse {
+    const message = createBaseBuildListResponse();
+    message.results = object.results?.map((e) => BuildResponse.fromPartial(e)) || [];
+    return message;
+  },
+};
+
+function createBaseBuildReadListRequest(): BuildReadListRequest {
+  return { document: 0 };
+}
+
+export const BuildReadListRequest: MessageFns<BuildReadListRequest> = {
+  encode(message: BuildReadListRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.document !== 0) {
+      writer.uint32(8).int64(message.document);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): BuildReadListRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseBuildReadListRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
+            break;
+          }
+
+          message.document = longToNumber(reader.int64());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): BuildReadListRequest {
+    return { document: isSet(object.document) ? globalThis.Number(object.document) : 0 };
+  },
+
+  toJSON(message: BuildReadListRequest): unknown {
+    const obj: any = {};
+    if (message.document !== 0) {
+      obj.document = Math.round(message.document);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<BuildReadListRequest>, I>>(base?: I): BuildReadListRequest {
+    return BuildReadListRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<BuildReadListRequest>, I>>(object: I): BuildReadListRequest {
+    const message = createBaseBuildReadListRequest();
+    message.document = object.document ?? 0;
+    return message;
+  },
+};
+
+function createBaseBuildReadStartBuildRequest(): BuildReadStartBuildRequest {
+  return { buildId: 0 };
+}
+
+export const BuildReadStartBuildRequest: MessageFns<BuildReadStartBuildRequest> = {
+  encode(message: BuildReadStartBuildRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.buildId !== 0) {
+      writer.uint32(8).int64(message.buildId);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): BuildReadStartBuildRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseBuildReadStartBuildRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
+            break;
+          }
+
+          message.buildId = longToNumber(reader.int64());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): BuildReadStartBuildRequest {
+    return { buildId: isSet(object.buildId) ? globalThis.Number(object.buildId) : 0 };
+  },
+
+  toJSON(message: BuildReadStartBuildRequest): unknown {
+    const obj: any = {};
+    if (message.buildId !== 0) {
+      obj.buildId = Math.round(message.buildId);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<BuildReadStartBuildRequest>, I>>(base?: I): BuildReadStartBuildRequest {
+    return BuildReadStartBuildRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<BuildReadStartBuildRequest>, I>>(object: I): BuildReadStartBuildRequest {
+    const message = createBaseBuildReadStartBuildRequest();
+    message.buildId = object.buildId ?? 0;
+    return message;
+  },
+};
+
+function createBaseBuildReadStreamPagesRequest(): BuildReadStreamPagesRequest {
+  return { buildId: 0 };
+}
+
+export const BuildReadStreamPagesRequest: MessageFns<BuildReadStreamPagesRequest> = {
+  encode(message: BuildReadStreamPagesRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.buildId !== 0) {
+      writer.uint32(8).int64(message.buildId);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): BuildReadStreamPagesRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseBuildReadStreamPagesRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
+            break;
+          }
+
+          message.buildId = longToNumber(reader.int64());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): BuildReadStreamPagesRequest {
+    return { buildId: isSet(object.buildId) ? globalThis.Number(object.buildId) : 0 };
+  },
+
+  toJSON(message: BuildReadStreamPagesRequest): unknown {
+    const obj: any = {};
+    if (message.buildId !== 0) {
+      obj.buildId = Math.round(message.buildId);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<BuildReadStreamPagesRequest>, I>>(base?: I): BuildReadStreamPagesRequest {
+    return BuildReadStreamPagesRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<BuildReadStreamPagesRequest>, I>>(object: I): BuildReadStreamPagesRequest {
+    const message = createBaseBuildReadStreamPagesRequest();
+    message.buildId = object.buildId ?? 0;
+    return message;
+  },
+};
+
+function createBaseBuildResponse(): BuildResponse {
+  return {
+    id: undefined,
+    document: 0,
+    reference: "",
+    workdir: "",
+    confPath: "",
+    lastBuildAt: undefined,
+    globalContext: undefined,
+  };
+}
+
+export const BuildResponse: MessageFns<BuildResponse> = {
+  encode(message: BuildResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== undefined) {
+      writer.uint32(8).int64(message.id);
+    }
+    if (message.document !== 0) {
+      writer.uint32(16).int64(message.document);
+    }
+    if (message.reference !== "") {
+      writer.uint32(26).string(message.reference);
+    }
+    if (message.workdir !== "") {
+      writer.uint32(34).string(message.workdir);
+    }
+    if (message.confPath !== "") {
+      writer.uint32(42).string(message.confPath);
+    }
+    if (message.lastBuildAt !== undefined) {
+      writer.uint32(50).string(message.lastBuildAt);
+    }
+    if (message.globalContext !== undefined) {
+      Struct.encode(Struct.wrap(message.globalContext), writer.uint32(58).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): BuildResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseBuildResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
+            break;
+          }
+
+          message.id = longToNumber(reader.int64());
+          continue;
+        }
+        case 2: {
+          if (tag !== 16) {
+            break;
+          }
+
+          message.document = longToNumber(reader.int64());
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.reference = reader.string();
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.workdir = reader.string();
+          continue;
+        }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          message.confPath = reader.string();
+          continue;
+        }
+        case 6: {
+          if (tag !== 50) {
+            break;
+          }
+
+          message.lastBuildAt = reader.string();
+          continue;
+        }
+        case 7: {
+          if (tag !== 58) {
+            break;
+          }
+
+          message.globalContext = Struct.unwrap(Struct.decode(reader, reader.uint32()));
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): BuildResponse {
+    return {
+      id: isSet(object.id) ? globalThis.Number(object.id) : undefined,
+      document: isSet(object.document) ? globalThis.Number(object.document) : 0,
+      reference: isSet(object.reference) ? globalThis.String(object.reference) : "",
+      workdir: isSet(object.workdir) ? globalThis.String(object.workdir) : "",
+      confPath: isSet(object.confPath) ? globalThis.String(object.confPath) : "",
+      lastBuildAt: isSet(object.lastBuildAt) ? globalThis.String(object.lastBuildAt) : undefined,
+      globalContext: isObject(object.globalContext) ? object.globalContext : undefined,
+    };
+  },
+
+  toJSON(message: BuildResponse): unknown {
+    const obj: any = {};
+    if (message.id !== undefined) {
+      obj.id = Math.round(message.id);
+    }
+    if (message.document !== 0) {
+      obj.document = Math.round(message.document);
+    }
+    if (message.reference !== "") {
+      obj.reference = message.reference;
+    }
+    if (message.workdir !== "") {
+      obj.workdir = message.workdir;
+    }
+    if (message.confPath !== "") {
+      obj.confPath = message.confPath;
+    }
+    if (message.lastBuildAt !== undefined) {
+      obj.lastBuildAt = message.lastBuildAt;
+    }
+    if (message.globalContext !== undefined) {
+      obj.globalContext = message.globalContext;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<BuildResponse>, I>>(base?: I): BuildResponse {
+    return BuildResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<BuildResponse>, I>>(object: I): BuildResponse {
+    const message = createBaseBuildResponse();
+    message.id = object.id ?? undefined;
+    message.document = object.document ?? 0;
+    message.reference = object.reference ?? "";
+    message.workdir = object.workdir ?? "";
+    message.confPath = object.confPath ?? "";
+    message.lastBuildAt = object.lastBuildAt ?? undefined;
+    message.globalContext = object.globalContext ?? undefined;
+    return message;
+  },
+};
+
+function createBaseBuildRetrieveRequest(): BuildRetrieveRequest {
+  return { id: 0 };
+}
+
+export const BuildRetrieveRequest: MessageFns<BuildRetrieveRequest> = {
+  encode(message: BuildRetrieveRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== 0) {
+      writer.uint32(8).int64(message.id);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): BuildRetrieveRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseBuildRetrieveRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
+            break;
+          }
+
+          message.id = longToNumber(reader.int64());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): BuildRetrieveRequest {
+    return { id: isSet(object.id) ? globalThis.Number(object.id) : 0 };
+  },
+
+  toJSON(message: BuildRetrieveRequest): unknown {
+    const obj: any = {};
+    if (message.id !== 0) {
+      obj.id = Math.round(message.id);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<BuildRetrieveRequest>, I>>(base?: I): BuildRetrieveRequest {
+    return BuildRetrieveRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<BuildRetrieveRequest>, I>>(object: I): BuildRetrieveRequest {
+    const message = createBaseBuildRetrieveRequest();
+    message.id = object.id ?? 0;
+    return message;
+  },
+};
 
 function createBaseContentBlockResponse(): ContentBlockResponse {
   return { contentHash: "", jsxContent: "" };
@@ -131,6 +638,208 @@ export const ContentBlockResponse: MessageFns<ContentBlockResponse> = {
     const message = createBaseContentBlockResponse();
     message.contentHash = object.contentHash ?? "";
     message.jsxContent = object.jsxContent ?? "";
+    return message;
+  },
+};
+
+function createBaseDocumentCreateAndStartBuildRequest(): DocumentCreateAndStartBuildRequest {
+  return { title: "", source: 0, reference: "", workdir: "", confPath: "", startImmediately: false };
+}
+
+export const DocumentCreateAndStartBuildRequest: MessageFns<DocumentCreateAndStartBuildRequest> = {
+  encode(message: DocumentCreateAndStartBuildRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.title !== "") {
+      writer.uint32(10).string(message.title);
+    }
+    if (message.source !== 0) {
+      writer.uint32(16).int64(message.source);
+    }
+    if (message.reference !== "") {
+      writer.uint32(26).string(message.reference);
+    }
+    if (message.workdir !== "") {
+      writer.uint32(34).string(message.workdir);
+    }
+    if (message.confPath !== "") {
+      writer.uint32(42).string(message.confPath);
+    }
+    if (message.startImmediately !== false) {
+      writer.uint32(48).bool(message.startImmediately);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): DocumentCreateAndStartBuildRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseDocumentCreateAndStartBuildRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.title = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 16) {
+            break;
+          }
+
+          message.source = longToNumber(reader.int64());
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.reference = reader.string();
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.workdir = reader.string();
+          continue;
+        }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          message.confPath = reader.string();
+          continue;
+        }
+        case 6: {
+          if (tag !== 48) {
+            break;
+          }
+
+          message.startImmediately = reader.bool();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): DocumentCreateAndStartBuildRequest {
+    return {
+      title: isSet(object.title) ? globalThis.String(object.title) : "",
+      source: isSet(object.source) ? globalThis.Number(object.source) : 0,
+      reference: isSet(object.reference) ? globalThis.String(object.reference) : "",
+      workdir: isSet(object.workdir) ? globalThis.String(object.workdir) : "",
+      confPath: isSet(object.confPath) ? globalThis.String(object.confPath) : "",
+      startImmediately: isSet(object.startImmediately) ? globalThis.Boolean(object.startImmediately) : false,
+    };
+  },
+
+  toJSON(message: DocumentCreateAndStartBuildRequest): unknown {
+    const obj: any = {};
+    if (message.title !== "") {
+      obj.title = message.title;
+    }
+    if (message.source !== 0) {
+      obj.source = Math.round(message.source);
+    }
+    if (message.reference !== "") {
+      obj.reference = message.reference;
+    }
+    if (message.workdir !== "") {
+      obj.workdir = message.workdir;
+    }
+    if (message.confPath !== "") {
+      obj.confPath = message.confPath;
+    }
+    if (message.startImmediately !== false) {
+      obj.startImmediately = message.startImmediately;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<DocumentCreateAndStartBuildRequest>, I>>(
+    base?: I,
+  ): DocumentCreateAndStartBuildRequest {
+    return DocumentCreateAndStartBuildRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<DocumentCreateAndStartBuildRequest>, I>>(
+    object: I,
+  ): DocumentCreateAndStartBuildRequest {
+    const message = createBaseDocumentCreateAndStartBuildRequest();
+    message.title = object.title ?? "";
+    message.source = object.source ?? 0;
+    message.reference = object.reference ?? "";
+    message.workdir = object.workdir ?? "";
+    message.confPath = object.confPath ?? "";
+    message.startImmediately = object.startImmediately ?? false;
+    return message;
+  },
+};
+
+function createBaseDocumentDestroyRequest(): DocumentDestroyRequest {
+  return { id: 0 };
+}
+
+export const DocumentDestroyRequest: MessageFns<DocumentDestroyRequest> = {
+  encode(message: DocumentDestroyRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== 0) {
+      writer.uint32(8).int64(message.id);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): DocumentDestroyRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseDocumentDestroyRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
+            break;
+          }
+
+          message.id = longToNumber(reader.int64());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): DocumentDestroyRequest {
+    return { id: isSet(object.id) ? globalThis.Number(object.id) : 0 };
+  },
+
+  toJSON(message: DocumentDestroyRequest): unknown {
+    const obj: any = {};
+    if (message.id !== 0) {
+      obj.id = Math.round(message.id);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<DocumentDestroyRequest>, I>>(base?: I): DocumentDestroyRequest {
+    return DocumentDestroyRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<DocumentDestroyRequest>, I>>(object: I): DocumentDestroyRequest {
+    const message = createBaseDocumentDestroyRequest();
+    message.id = object.id ?? 0;
     return message;
   },
 };
@@ -240,22 +949,31 @@ export const DocumentListResponse: MessageFns<DocumentListResponse> = {
   },
 };
 
-function createBaseDocumentReadStreamPagesRequest(): DocumentReadStreamPagesRequest {
-  return { documentId: 0 };
+function createBaseDocumentPartialUpdateRequest(): DocumentPartialUpdateRequest {
+  return { id: undefined, title: "", source: 0, PartialUpdateFields: [] };
 }
 
-export const DocumentReadStreamPagesRequest: MessageFns<DocumentReadStreamPagesRequest> = {
-  encode(message: DocumentReadStreamPagesRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.documentId !== 0) {
-      writer.uint32(8).int64(message.documentId);
+export const DocumentPartialUpdateRequest: MessageFns<DocumentPartialUpdateRequest> = {
+  encode(message: DocumentPartialUpdateRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== undefined) {
+      writer.uint32(8).int64(message.id);
+    }
+    if (message.title !== "") {
+      writer.uint32(18).string(message.title);
+    }
+    if (message.source !== 0) {
+      writer.uint32(24).int64(message.source);
+    }
+    for (const v of message.PartialUpdateFields) {
+      writer.uint32(34).string(v!);
     }
     return writer;
   },
 
-  decode(input: BinaryReader | Uint8Array, length?: number): DocumentReadStreamPagesRequest {
+  decode(input: BinaryReader | Uint8Array, length?: number): DocumentPartialUpdateRequest {
     const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
     const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseDocumentReadStreamPagesRequest();
+    const message = createBaseDocumentPartialUpdateRequest();
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
@@ -264,7 +982,31 @@ export const DocumentReadStreamPagesRequest: MessageFns<DocumentReadStreamPagesR
             break;
           }
 
-          message.documentId = longToNumber(reader.int64());
+          message.id = longToNumber(reader.int64());
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.title = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 24) {
+            break;
+          }
+
+          message.source = longToNumber(reader.int64());
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.PartialUpdateFields.push(reader.string());
           continue;
         }
       }
@@ -276,41 +1018,141 @@ export const DocumentReadStreamPagesRequest: MessageFns<DocumentReadStreamPagesR
     return message;
   },
 
-  fromJSON(object: any): DocumentReadStreamPagesRequest {
-    return { documentId: isSet(object.documentId) ? globalThis.Number(object.documentId) : 0 };
+  fromJSON(object: any): DocumentPartialUpdateRequest {
+    return {
+      id: isSet(object.id) ? globalThis.Number(object.id) : undefined,
+      title: isSet(object.title) ? globalThis.String(object.title) : "",
+      source: isSet(object.source) ? globalThis.Number(object.source) : 0,
+      PartialUpdateFields: globalThis.Array.isArray(object?.PartialUpdateFields)
+        ? object.PartialUpdateFields.map((e: any) => globalThis.String(e))
+        : [],
+    };
   },
 
-  toJSON(message: DocumentReadStreamPagesRequest): unknown {
+  toJSON(message: DocumentPartialUpdateRequest): unknown {
     const obj: any = {};
-    if (message.documentId !== 0) {
-      obj.documentId = Math.round(message.documentId);
+    if (message.id !== undefined) {
+      obj.id = Math.round(message.id);
+    }
+    if (message.title !== "") {
+      obj.title = message.title;
+    }
+    if (message.source !== 0) {
+      obj.source = Math.round(message.source);
+    }
+    if (message.PartialUpdateFields?.length) {
+      obj.PartialUpdateFields = message.PartialUpdateFields;
     }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<DocumentReadStreamPagesRequest>, I>>(base?: I): DocumentReadStreamPagesRequest {
-    return DocumentReadStreamPagesRequest.fromPartial(base ?? ({} as any));
+  create<I extends Exact<DeepPartial<DocumentPartialUpdateRequest>, I>>(base?: I): DocumentPartialUpdateRequest {
+    return DocumentPartialUpdateRequest.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<DocumentReadStreamPagesRequest>, I>>(
-    object: I,
-  ): DocumentReadStreamPagesRequest {
-    const message = createBaseDocumentReadStreamPagesRequest();
-    message.documentId = object.documentId ?? 0;
+  fromPartial<I extends Exact<DeepPartial<DocumentPartialUpdateRequest>, I>>(object: I): DocumentPartialUpdateRequest {
+    const message = createBaseDocumentPartialUpdateRequest();
+    message.id = object.id ?? undefined;
+    message.title = object.title ?? "";
+    message.source = object.source ?? 0;
+    message.PartialUpdateFields = object.PartialUpdateFields?.map((e) => e) || [];
+    return message;
+  },
+};
+
+function createBaseDocumentRequest(): DocumentRequest {
+  return { id: undefined, title: "", source: 0 };
+}
+
+export const DocumentRequest: MessageFns<DocumentRequest> = {
+  encode(message: DocumentRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== undefined) {
+      writer.uint32(8).int64(message.id);
+    }
+    if (message.title !== "") {
+      writer.uint32(18).string(message.title);
+    }
+    if (message.source !== 0) {
+      writer.uint32(24).int64(message.source);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): DocumentRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseDocumentRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
+            break;
+          }
+
+          message.id = longToNumber(reader.int64());
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.title = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 24) {
+            break;
+          }
+
+          message.source = longToNumber(reader.int64());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): DocumentRequest {
+    return {
+      id: isSet(object.id) ? globalThis.Number(object.id) : undefined,
+      title: isSet(object.title) ? globalThis.String(object.title) : "",
+      source: isSet(object.source) ? globalThis.Number(object.source) : 0,
+    };
+  },
+
+  toJSON(message: DocumentRequest): unknown {
+    const obj: any = {};
+    if (message.id !== undefined) {
+      obj.id = Math.round(message.id);
+    }
+    if (message.title !== "") {
+      obj.title = message.title;
+    }
+    if (message.source !== 0) {
+      obj.source = Math.round(message.source);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<DocumentRequest>, I>>(base?: I): DocumentRequest {
+    return DocumentRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<DocumentRequest>, I>>(object: I): DocumentRequest {
+    const message = createBaseDocumentRequest();
+    message.id = object.id ?? undefined;
+    message.title = object.title ?? "";
+    message.source = object.source ?? 0;
     return message;
   },
 };
 
 function createBaseDocumentResponse(): DocumentResponse {
-  return {
-    id: undefined,
-    title: "",
-    source: 0,
-    reference: "",
-    workdir: "",
-    confPath: "",
-    lastBuildAt: undefined,
-    globalContext: undefined,
-  };
+  return { id: undefined, title: "", source: 0 };
 }
 
 export const DocumentResponse: MessageFns<DocumentResponse> = {
@@ -323,21 +1165,6 @@ export const DocumentResponse: MessageFns<DocumentResponse> = {
     }
     if (message.source !== 0) {
       writer.uint32(24).int64(message.source);
-    }
-    if (message.reference !== "") {
-      writer.uint32(34).string(message.reference);
-    }
-    if (message.workdir !== "") {
-      writer.uint32(42).string(message.workdir);
-    }
-    if (message.confPath !== "") {
-      writer.uint32(50).string(message.confPath);
-    }
-    if (message.lastBuildAt !== undefined) {
-      writer.uint32(58).string(message.lastBuildAt);
-    }
-    if (message.globalContext !== undefined) {
-      Struct.encode(Struct.wrap(message.globalContext), writer.uint32(66).fork()).join();
     }
     return writer;
   },
@@ -373,46 +1200,6 @@ export const DocumentResponse: MessageFns<DocumentResponse> = {
           message.source = longToNumber(reader.int64());
           continue;
         }
-        case 4: {
-          if (tag !== 34) {
-            break;
-          }
-
-          message.reference = reader.string();
-          continue;
-        }
-        case 5: {
-          if (tag !== 42) {
-            break;
-          }
-
-          message.workdir = reader.string();
-          continue;
-        }
-        case 6: {
-          if (tag !== 50) {
-            break;
-          }
-
-          message.confPath = reader.string();
-          continue;
-        }
-        case 7: {
-          if (tag !== 58) {
-            break;
-          }
-
-          message.lastBuildAt = reader.string();
-          continue;
-        }
-        case 8: {
-          if (tag !== 66) {
-            break;
-          }
-
-          message.globalContext = Struct.unwrap(Struct.decode(reader, reader.uint32()));
-          continue;
-        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -427,11 +1214,6 @@ export const DocumentResponse: MessageFns<DocumentResponse> = {
       id: isSet(object.id) ? globalThis.Number(object.id) : undefined,
       title: isSet(object.title) ? globalThis.String(object.title) : "",
       source: isSet(object.source) ? globalThis.Number(object.source) : 0,
-      reference: isSet(object.reference) ? globalThis.String(object.reference) : "",
-      workdir: isSet(object.workdir) ? globalThis.String(object.workdir) : "",
-      confPath: isSet(object.confPath) ? globalThis.String(object.confPath) : "",
-      lastBuildAt: isSet(object.lastBuildAt) ? globalThis.String(object.lastBuildAt) : undefined,
-      globalContext: isObject(object.globalContext) ? object.globalContext : undefined,
     };
   },
 
@@ -446,21 +1228,6 @@ export const DocumentResponse: MessageFns<DocumentResponse> = {
     if (message.source !== 0) {
       obj.source = Math.round(message.source);
     }
-    if (message.reference !== "") {
-      obj.reference = message.reference;
-    }
-    if (message.workdir !== "") {
-      obj.workdir = message.workdir;
-    }
-    if (message.confPath !== "") {
-      obj.confPath = message.confPath;
-    }
-    if (message.lastBuildAt !== undefined) {
-      obj.lastBuildAt = message.lastBuildAt;
-    }
-    if (message.globalContext !== undefined) {
-      obj.globalContext = message.globalContext;
-    }
     return obj;
   },
 
@@ -472,11 +1239,6 @@ export const DocumentResponse: MessageFns<DocumentResponse> = {
     message.id = object.id ?? undefined;
     message.title = object.title ?? "";
     message.source = object.source ?? 0;
-    message.reference = object.reference ?? "";
-    message.workdir = object.workdir ?? "";
-    message.confPath = object.confPath ?? "";
-    message.lastBuildAt = object.lastBuildAt ?? undefined;
-    message.globalContext = object.globalContext ?? undefined;
     return message;
   },
 };
@@ -540,14 +1302,11 @@ export const DocumentRetrieveRequest: MessageFns<DocumentRetrieveRequest> = {
 };
 
 function createBasePageResponse(): PageResponse {
-  return { currentPageName: "", title: "", context: undefined, sections: [] };
+  return { title: "", context: undefined, sections: [], path: "", jsxContent: "" };
 }
 
 export const PageResponse: MessageFns<PageResponse> = {
   encode(message: PageResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.currentPageName !== "") {
-      writer.uint32(10).string(message.currentPageName);
-    }
     if (message.title !== "") {
       writer.uint32(18).string(message.title);
     }
@@ -556,6 +1315,12 @@ export const PageResponse: MessageFns<PageResponse> = {
     }
     for (const v of message.sections) {
       SectionResponse.encode(v!, writer.uint32(34).fork()).join();
+    }
+    if (message.path !== "") {
+      writer.uint32(50).string(message.path);
+    }
+    if (message.jsxContent !== "") {
+      writer.uint32(58).string(message.jsxContent);
     }
     return writer;
   },
@@ -567,14 +1332,6 @@ export const PageResponse: MessageFns<PageResponse> = {
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.currentPageName = reader.string();
-          continue;
-        }
         case 2: {
           if (tag !== 18) {
             break;
@@ -599,6 +1356,22 @@ export const PageResponse: MessageFns<PageResponse> = {
           message.sections.push(SectionResponse.decode(reader, reader.uint32()));
           continue;
         }
+        case 6: {
+          if (tag !== 50) {
+            break;
+          }
+
+          message.path = reader.string();
+          continue;
+        }
+        case 7: {
+          if (tag !== 58) {
+            break;
+          }
+
+          message.jsxContent = reader.string();
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -610,20 +1383,18 @@ export const PageResponse: MessageFns<PageResponse> = {
 
   fromJSON(object: any): PageResponse {
     return {
-      currentPageName: isSet(object.currentPageName) ? globalThis.String(object.currentPageName) : "",
       title: isSet(object.title) ? globalThis.String(object.title) : "",
       context: isObject(object.context) ? object.context : undefined,
       sections: globalThis.Array.isArray(object?.sections)
         ? object.sections.map((e: any) => SectionResponse.fromJSON(e))
         : [],
+      path: isSet(object.path) ? globalThis.String(object.path) : "",
+      jsxContent: isSet(object.jsxContent) ? globalThis.String(object.jsxContent) : "",
     };
   },
 
   toJSON(message: PageResponse): unknown {
     const obj: any = {};
-    if (message.currentPageName !== "") {
-      obj.currentPageName = message.currentPageName;
-    }
     if (message.title !== "") {
       obj.title = message.title;
     }
@@ -633,6 +1404,12 @@ export const PageResponse: MessageFns<PageResponse> = {
     if (message.sections?.length) {
       obj.sections = message.sections.map((e) => SectionResponse.toJSON(e));
     }
+    if (message.path !== "") {
+      obj.path = message.path;
+    }
+    if (message.jsxContent !== "") {
+      obj.jsxContent = message.jsxContent;
+    }
     return obj;
   },
 
@@ -641,10 +1418,11 @@ export const PageResponse: MessageFns<PageResponse> = {
   },
   fromPartial<I extends Exact<DeepPartial<PageResponse>, I>>(object: I): PageResponse {
     const message = createBasePageResponse();
-    message.currentPageName = object.currentPageName ?? "";
     message.title = object.title ?? "";
     message.context = object.context ?? undefined;
     message.sections = object.sections?.map((e) => SectionResponse.fromPartial(e)) || [];
+    message.path = object.path ?? "";
+    message.jsxContent = object.jsxContent ?? "";
     return message;
   },
 };
@@ -807,16 +1585,114 @@ export const SectionResponse: MessageFns<SectionResponse> = {
   },
 };
 
-export type DocumentReadControllerDefinition = typeof DocumentReadControllerDefinition;
-export const DocumentReadControllerDefinition = {
-  name: "DocumentReadController",
-  fullName: "config.documents.DocumentReadController",
+export type BuildReadControllerDefinition = typeof BuildReadControllerDefinition;
+export const BuildReadControllerDefinition = {
+  name: "BuildReadController",
+  fullName: "config.documents.BuildReadController",
   methods: {
+    list: {
+      name: "List",
+      requestType: BuildReadListRequest,
+      requestStream: false,
+      responseType: BuildListResponse,
+      responseStream: false,
+      options: {},
+    },
+    retrieve: {
+      name: "Retrieve",
+      requestType: BuildRetrieveRequest,
+      requestStream: false,
+      responseType: BuildResponse,
+      responseStream: false,
+      options: {},
+    },
+    startBuild: {
+      name: "StartBuild",
+      requestType: BuildReadStartBuildRequest,
+      requestStream: false,
+      responseType: BuildResponse,
+      responseStream: false,
+      options: {},
+    },
+    streamPages: {
+      name: "StreamPages",
+      requestType: BuildReadStreamPagesRequest,
+      requestStream: false,
+      responseType: PageResponse,
+      responseStream: true,
+      options: {},
+    },
+  },
+} as const;
+
+export interface BuildReadControllerServiceImplementation<CallContextExt = {}> {
+  list(request: BuildReadListRequest, context: CallContext & CallContextExt): Promise<DeepPartial<BuildListResponse>>;
+  retrieve(request: BuildRetrieveRequest, context: CallContext & CallContextExt): Promise<DeepPartial<BuildResponse>>;
+  startBuild(
+    request: BuildReadStartBuildRequest,
+    context: CallContext & CallContextExt,
+  ): Promise<DeepPartial<BuildResponse>>;
+  streamPages(
+    request: BuildReadStreamPagesRequest,
+    context: CallContext & CallContextExt,
+  ): ServerStreamingMethodResult<DeepPartial<PageResponse>>;
+}
+
+export interface BuildReadControllerClient<CallOptionsExt = {}> {
+  list(request: DeepPartial<BuildReadListRequest>, options?: CallOptions & CallOptionsExt): Promise<BuildListResponse>;
+  retrieve(request: DeepPartial<BuildRetrieveRequest>, options?: CallOptions & CallOptionsExt): Promise<BuildResponse>;
+  startBuild(
+    request: DeepPartial<BuildReadStartBuildRequest>,
+    options?: CallOptions & CallOptionsExt,
+  ): Promise<BuildResponse>;
+  streamPages(
+    request: DeepPartial<BuildReadStreamPagesRequest>,
+    options?: CallOptions & CallOptionsExt,
+  ): AsyncIterable<PageResponse>;
+}
+
+export type DocumentControllerDefinition = typeof DocumentControllerDefinition;
+export const DocumentControllerDefinition = {
+  name: "DocumentController",
+  fullName: "config.documents.DocumentController",
+  methods: {
+    create: {
+      name: "Create",
+      requestType: DocumentRequest,
+      requestStream: false,
+      responseType: DocumentResponse,
+      responseStream: false,
+      options: {},
+    },
+    createAndStartBuild: {
+      name: "CreateAndStartBuild",
+      requestType: DocumentCreateAndStartBuildRequest,
+      requestStream: false,
+      responseType: BuildResponse,
+      responseStream: false,
+      options: {},
+    },
+    destroy: {
+      name: "Destroy",
+      requestType: DocumentDestroyRequest,
+      requestStream: false,
+      responseType: Empty,
+      responseStream: false,
+      options: {},
+    },
     list: {
       name: "List",
       requestType: DocumentListRequest,
       requestStream: false,
       responseType: DocumentListResponse,
+      responseStream: false,
+      options: {},
+    },
+    partialUpdate: {
+      name: "PartialUpdate",
+      requestType: DocumentPartialUpdateRequest,
+      requestStream: false,
+      responseType: DocumentResponse,
       responseStream: false,
       options: {},
     },
@@ -828,42 +1704,56 @@ export const DocumentReadControllerDefinition = {
       responseStream: false,
       options: {},
     },
-    streamPages: {
-      name: "StreamPages",
-      requestType: DocumentReadStreamPagesRequest,
+    update: {
+      name: "Update",
+      requestType: DocumentRequest,
       requestStream: false,
-      responseType: PageResponse,
-      responseStream: true,
+      responseType: DocumentResponse,
+      responseStream: false,
       options: {},
     },
   },
 } as const;
 
-export interface DocumentReadControllerServiceImplementation<CallContextExt = {}> {
+export interface DocumentControllerServiceImplementation<CallContextExt = {}> {
+  create(request: DocumentRequest, context: CallContext & CallContextExt): Promise<DeepPartial<DocumentResponse>>;
+  createAndStartBuild(
+    request: DocumentCreateAndStartBuildRequest,
+    context: CallContext & CallContextExt,
+  ): Promise<DeepPartial<BuildResponse>>;
+  destroy(request: DocumentDestroyRequest, context: CallContext & CallContextExt): Promise<DeepPartial<Empty>>;
   list(request: DocumentListRequest, context: CallContext & CallContextExt): Promise<DeepPartial<DocumentListResponse>>;
+  partialUpdate(
+    request: DocumentPartialUpdateRequest,
+    context: CallContext & CallContextExt,
+  ): Promise<DeepPartial<DocumentResponse>>;
   retrieve(
     request: DocumentRetrieveRequest,
     context: CallContext & CallContextExt,
   ): Promise<DeepPartial<DocumentResponse>>;
-  streamPages(
-    request: DocumentReadStreamPagesRequest,
-    context: CallContext & CallContextExt,
-  ): ServerStreamingMethodResult<DeepPartial<PageResponse>>;
+  update(request: DocumentRequest, context: CallContext & CallContextExt): Promise<DeepPartial<DocumentResponse>>;
 }
 
-export interface DocumentReadControllerClient<CallOptionsExt = {}> {
+export interface DocumentControllerClient<CallOptionsExt = {}> {
+  create(request: DeepPartial<DocumentRequest>, options?: CallOptions & CallOptionsExt): Promise<DocumentResponse>;
+  createAndStartBuild(
+    request: DeepPartial<DocumentCreateAndStartBuildRequest>,
+    options?: CallOptions & CallOptionsExt,
+  ): Promise<BuildResponse>;
+  destroy(request: DeepPartial<DocumentDestroyRequest>, options?: CallOptions & CallOptionsExt): Promise<Empty>;
   list(
     request: DeepPartial<DocumentListRequest>,
     options?: CallOptions & CallOptionsExt,
   ): Promise<DocumentListResponse>;
+  partialUpdate(
+    request: DeepPartial<DocumentPartialUpdateRequest>,
+    options?: CallOptions & CallOptionsExt,
+  ): Promise<DocumentResponse>;
   retrieve(
     request: DeepPartial<DocumentRetrieveRequest>,
     options?: CallOptions & CallOptionsExt,
   ): Promise<DocumentResponse>;
-  streamPages(
-    request: DeepPartial<DocumentReadStreamPagesRequest>,
-    options?: CallOptions & CallOptionsExt,
-  ): AsyncIterable<PageResponse>;
+  update(request: DeepPartial<DocumentRequest>, options?: CallOptions & CallOptionsExt): Promise<DocumentResponse>;
 }
 
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;

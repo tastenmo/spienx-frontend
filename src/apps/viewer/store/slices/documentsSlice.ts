@@ -40,6 +40,13 @@ interface DocumentPage extends PageResponse {
   sections: SectionResponse[];
 }
 
+interface DocumentBuild {
+  id: number;
+  document: number;
+  reference: string;
+  lastBuildAt?: string;
+}
+
 interface DocumentsState {
   list: {
     items: DocumentMetadata[];
@@ -49,8 +56,10 @@ interface DocumentsState {
   current: {
     document: DocumentMetadata | null;
     pages: DocumentPage[];
+    builds: DocumentBuild[];
     loading: boolean;
     error: string | null;
+    buildsLoading: boolean;
   };
 }
 
@@ -63,8 +72,10 @@ const initialState: DocumentsState = {
   current: {
     document: null,
     pages: [],
+    builds: [],
     loading: false,
-    error: null
+    error: null,
+    buildsLoading: false
   }
 };
 
@@ -84,6 +95,26 @@ export const fetchDocuments = createAsyncThunk(
 );
 
 /**
+ * Fetch builds for a document
+ */
+export const fetchDocumentBuilds = createAsyncThunk(
+  'documents/fetchDocumentBuilds',
+  async (documentId: number, { rejectWithValue }) => {
+    try {
+      const builds = await documentService.listBuilds(documentId);
+      return builds.map(b => ({
+        id: b.id || 0,
+        document: b.document,
+        reference: b.reference,
+        lastBuildAt: b.lastBuildAt
+      }));
+    } catch (error) {
+      return rejectWithValue((error as Error).message);
+    }
+  }
+);
+
+/**
  * Fetch a specific document by ID
  */
 export const fetchDocument = createAsyncThunk(
@@ -91,8 +122,20 @@ export const fetchDocument = createAsyncThunk(
   async (documentId: number, { rejectWithValue }) => {
     try {
       const document = await documentService.getDocument(documentId);
-      const pages = await documentService.getDocumentPages(documentId);
-      return { document, pages };
+      const builds = await documentService.listBuilds(documentId);
+      const latestBuild = builds && builds.length > 0 ? builds[0] : null;
+      
+      // Merge document with globalContext from the latest build
+      const documentWithContext = {
+        ...document,
+        globalContext: latestBuild?.globalContext || {},
+        reference: latestBuild?.reference || '',
+        lastBuildAt: latestBuild?.lastBuildAt || undefined,
+      };
+      
+      // Fetch pages from the latest build
+      const pages = latestBuild ? await documentService.getDocumentPages(latestBuild.id) : [];
+      return { document: documentWithContext, pages };
     } catch (error) {
       return rejectWithValue((error as Error).message);
     }
@@ -107,8 +150,10 @@ const documentsSlice = createSlice({
       state.current = {
         document: null,
         pages: [],
+        builds: [],
         loading: false,
-        error: null
+        error: null,
+        buildsLoading: false
       };
     },
     clearDocumentError: (state) => {
@@ -148,6 +193,23 @@ const documentsSlice = createSlice({
       .addCase(fetchDocument.rejected, (state, action) => {
         state.current.loading = false;
         state.current.error = action.payload as string;
+      });
+
+    // Fetch document builds
+    builder
+      .addCase(fetchDocumentBuilds.pending, (state) => {
+        state.current.buildsLoading = true;
+      })
+      .addCase(fetchDocumentBuilds.fulfilled, (state, action) => {
+        state.current.buildsLoading = false;
+        state.current.builds = action.payload;
+      })
+      .addCase(fetchDocumentBuilds.rejected, (state, action) => {
+        state.current.buildsLoading = false;
+        // We might want to store build error separately or just log it, 
+        // effectively treating it as empty list with error in console or global error
+        // For now, let's not block the document view if builds fail
+        console.error('Failed to fetch builds:', action.payload);
       });
   }
 });

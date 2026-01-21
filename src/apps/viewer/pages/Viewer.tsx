@@ -1,23 +1,43 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
-import { fetchDocument } from '../store/slices/documentsSlice';
+import { fetchDocument, fetchDocumentBuilds } from '../store/slices/documentsSlice';
 import { ViewerAppDispatch, ViewerRootState } from '../store/store';
-import JsxRenderer from '../../shared/components/JsxRenderer';
-import './Viewer.css';
+import { Page } from '../components/Page';
+// import './Viewer.css';
 
 const Viewer: React.FC = () => {
   const dispatch = useDispatch<ViewerAppDispatch>();
-  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const { id, pagePath } = useParams<{ id: string; pagePath?: string }>();
   
-  const { document, pages, loading, error } = useSelector(
+  const { document, pages, builds, loading, error, buildsLoading } = useSelector(
     (state: ViewerRootState) => state.documents.current
   );
 
+  const actualPath = pagePath || document?.globalContext?.master_doc || "";
+
+  // Find the current page by path
+  const currentPage = actualPath ? pages.find(p => p.path === actualPath) : pages[0];
+
+  // Debug logging
+  useEffect(() => {
+    console.log("=== Viewer Debug ===");
+    console.log("pagePath:", pagePath);
+    console.log("actualPath:", actualPath);
+    console.log("document:", document);
+    console.log("document?.globalContext?.master_doc:", document?.globalContext?.master_doc);
+    console.log("builds:", builds);
+    console.log("pages:", pages);
+    console.log("currentPage:", currentPage);
+  }, [pagePath, actualPath, currentPage, document, pages, builds]);
+
   useEffect(() => {
     if (id) {
-      dispatch(fetchDocument(parseInt(id, 10)));
+      const docId = parseInt(id, 10);
+      dispatch(fetchDocument(docId));
+      dispatch(fetchDocumentBuilds(docId));
     }
   }, [id, dispatch]);
 
@@ -45,65 +65,123 @@ const Viewer: React.FC = () => {
     );
   }
 
+  if (pages.length === 0) {
+    return (
+      <div className="viewer-container">
+        <div className="viewer-empty">No pages available</div>
+      </div>
+    );
+  }
+
+  // Ensure currentPage exists and is valid
+  if (!currentPage) {
+    return (
+      <div className="viewer-container">
+        <div className="viewer-empty">Page not found</div>
+      </div>
+    );
+  }
+
+  // Navigation handlers using page paths
+  const handlePreviousPage = () => {
+    if (currentPage?.previousPage) {
+      navigate(`/documents/${id}/pages/${currentPage.previousPage}`);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (currentPage?.nextPage) {
+      navigate(`/documents/${id}/pages/${currentPage.nextPage}`);
+    }
+  };
+
+  // Handle internal link navigation with document ID preserved
+  const handleLinkNavigation = (href: string) => {
+    // Remove leading slash if present
+    const cleanHref = href.startsWith('/') ? href.substring(1) : href;
+    
+    // Split path and hash
+    const [path, hash] = cleanHref.split('#');
+    
+    // Build full path with document ID
+    const fullPath = `/documents/${id}/${path}${hash ? '#' + hash : ''}`;
+    navigate(fullPath);
+  };
+
   return (
     <div className="viewer-container">
-      <header className="viewer-header">
-        <h1 className="viewer-title">{document.title}</h1>
-        <div className="viewer-metadata">
-          <span className="metadata-item">
-            <strong>Reference:</strong> {document.reference}
-          </span>
-          {document.lastBuildAt && (
+      <header className="app-header">
+        <div className="header-main">
+          <h1 className="viewer-title">{document.title}</h1>
+          <div className="viewer-metadata">
             <span className="metadata-item">
-              <strong>Last Built:</strong> {new Date(document.lastBuildAt).toLocaleDateString()}
+              <strong>Reference:</strong> {document.reference}
             </span>
+            {document.lastBuildAt && (
+              <span className="metadata-item">
+                <strong>Last Built:</strong> {new Date(document.lastBuildAt).toLocaleDateString()}
+              </span>
+            )}
+          </div>
+        </div>
+        
+        {/* Recent Builds Summary */}
+        <div className="builds-summary">
+          <strong>Build Configurations:</strong>
+          {buildsLoading ? (
+            <span> Loading...</span>
+          ) : builds && builds.length > 0 ? (
+            <div className="builds-list-mini">
+              {builds.slice(0, 3).map(build => (
+                <div key={build.id} className="build-item-mini">
+                  <span>#{build.id}</span>
+                  <span className="build-status">{build.reference}</span>
+                  {build.lastBuildAt && (
+                      <span className="build-date">{new Date(build.lastBuildAt).toLocaleDateString()}</span>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <span> No builds found</span>
           )}
         </div>
       </header>
 
       <main className="viewer-content">
-        {pages.length === 0 ? (
-          <div className="viewer-empty">No pages available</div>
-        ) : (
-          pages.map((page, pageIndex) => (
-            <section key={pageIndex} className="viewer-page">
-              <h2 className="page-title">{page.title}</h2>
-              
-              {page.sections && page.sections.length > 0 ? (
-                <div className="sections-list">
-                  {page.sections.map((section, sectionIndex) => (
-                    <article 
-                      key={sectionIndex} 
-                      className="section" 
-                      id={section.sphinxId}
-                    >
-                      <h3 className="section-title">{section.title}</h3>
-                      
-                      {section.contentBlock && section.contentBlock.jsxContent && (
-                        <JsxRenderer
-                          jsxContent={section.contentBlock.jsxContent}
-                          context={page.context || document.globalContext}
-                          className="section-content"
-                        />
-                      )}
-
-                      {section.sourcePath && (
-                        <footer className="section-footer">
-                          <small>
-                            Source: {section.sourcePath} (lines {section.startLine}-{section.endLine})
-                          </small>
-                        </footer>
-                      )}
-                    </article>
-                  ))}
-                </div>
-              ) : (
-                <p className="empty-page">No sections in this page</p>
-              )}
-            </section>
-          ))
-        )}
+        <Page
+          title={currentPage.title}
+          sections={currentPage.sections}
+          content= {currentPage.jsxContent}
+          bindings={currentPage.context}
+          onNavigate={handleLinkNavigation}
+          documentId={id}
+          debug={true}
+        />
       </main>
+
+      {/* Page Navigation Footer */}
+      <footer className="viewer-footer">
+        <div className="page-navigation">
+          <button
+            onClick={handlePreviousPage}
+            disabled={!currentPage?.previousPage}
+            className="nav-button"
+          >
+            ← Previous
+          </button>
+          <div className="page-indicator">
+            {currentPage.path}
+          </div>
+          <button
+            onClick={handleNextPage}
+            disabled={!currentPage?.nextPage}
+            className="nav-button"
+          >
+            Next →
+          </button>
+        </div>
+      </footer>
     </div>
   );
 };

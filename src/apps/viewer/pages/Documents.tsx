@@ -33,7 +33,12 @@ const Documents: React.FC = () => {
 
   return (
     <div className="documents-container">
-      <h1 className="documents-title">Available Documents</h1>
+      <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+        <h1 className="documents-title">Available Documents</h1>
+        <Link to="/documents/new" className="btn btn-primary" style={{textDecoration: 'none', padding: '0.5rem 1rem', background: '#007bff', color: 'white', borderRadius: '4px'}}>
+          + Add Document
+        </Link>
+      </div>
 
       {items.length === 0 ? (
         <div className="documents-empty">

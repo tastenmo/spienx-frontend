@@ -92,6 +92,21 @@ class GitService {
     await this.adminClient.destroy({ id });
     return { success: true };
   }
+
+  // List refs (branches and tags)
+  async listRefs(repositoryId: number) {
+    const response = await this.adminClient.listRefs({ repositoryId });
+    return {
+      branches: (response.branches || '').split('\n').filter(Boolean),
+      tags: (response.tags || '').split('\n').filter(Boolean),
+    };
+  }
+
+  // List tree
+  async listTree(repositoryId: number, reference: string, path: string) {
+    const response = await this.adminClient.listTree({ repositoryId, reference, path });
+    return response.results;
+  }
 }
 
 // Export singleton instance

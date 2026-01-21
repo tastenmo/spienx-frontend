@@ -7,6 +7,7 @@ import ViewerLayout from './apps/shared/layouts/ViewerLayout'
 import AppLayout from './components/AppLayout'
 import Viewer from './apps/viewer/pages/Viewer'
 import Documents from './apps/viewer/pages/Documents'
+import AddAndBuild from './apps/viewer/pages/AddAndBuild'
 import Home from './pages/Home'
 import About from './pages/About'
 import Contact from './pages/Contact'
@@ -104,7 +105,9 @@ function App() {
                 <ViewerLayout user={user} onLogout={handleLogout}>
                   <Routes>
                     <Route index element={<Documents />} />
+                    <Route path="new" element={<AddAndBuild />} />
                     <Route path=":id" element={<Viewer />} />
+                    <Route path=":id/:pagePath" element={<Viewer />} />
                   </Routes>
                 </ViewerLayout>
               </ReduxProvider>
