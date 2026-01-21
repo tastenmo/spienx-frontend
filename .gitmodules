@@ -1,0 +1,3 @@
+[submodule "design-system"]
+	path = design-system
+	url = https://git.escad-group.com/spienx/sphinx-design-system.git
