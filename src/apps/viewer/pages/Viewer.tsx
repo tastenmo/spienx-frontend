@@ -5,7 +5,7 @@ import { useEffect } from 'react';
 import { fetchDocument, fetchDocumentBuilds } from '../store/slices/documentsSlice';
 import { ViewerAppDispatch, ViewerRootState } from '../store/store';
 import { Page } from '../components/Page';
-// import './Viewer.css';
+import '../../../../design-system/scss/main.scss';
 
 const Viewer: React.FC = () => {
   const dispatch = useDispatch<ViewerAppDispatch>();
@@ -110,8 +110,19 @@ const Viewer: React.FC = () => {
 
   return (
     <div className="viewer-container">
-      <header className="app-header">
-        <div className="header-main">
+      <header className="viewer-header">
+        <a href="/" className="header-logo">
+          <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="20" cy="20" r="18" fill="currentColor" opacity="0.1"/>
+            <path d="M20 8L28 14V26L20 32L12 26V14L20 8Z" fill="currentColor" strokeWidth="1.5" stroke="currentColor"/>
+          </svg>
+          <span className="logo-text">Spienx</span>
+        </a>
+        <nav className="header-nav"></nav>
+      </header>
+
+      <main className="viewer-content">
+        <div>
           <h1 className="viewer-title">{document.title}</h1>
           <div className="viewer-metadata">
             <span className="metadata-item">
@@ -146,9 +157,7 @@ const Viewer: React.FC = () => {
             <span> No builds found</span>
           )}
         </div>
-      </header>
 
-      <main className="viewer-content">
         <Page
           title={currentPage.title}
           sections={currentPage.sections}

@@ -20,9 +20,18 @@ function Login({ onLoginSuccess }: LoginProps) {
     setIsLoading(true);
 
     try {
-      const csrfToken = getCookie('csrftoken');
       const API_URL = import.meta.env.VITE_GRPC_BACKEND_URL || 'https://hub.tastenmo.de';
+      
+      // First, fetch CSRF token
+      await fetch(`${API_URL}/api/auth/csrf/`, {
+        method: 'GET',
+        credentials: 'include',
+      });
+      
+      // Now get the token from cookie
+      const csrfToken = getCookie('csrftoken');
       console.log('Attempting login to:', `${API_URL}/api/auth/login/`);
+      
       const response = await fetch(`${API_URL}/api/auth/login/`, {
         method: 'POST',
         credentials: 'include',

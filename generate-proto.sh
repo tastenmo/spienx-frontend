@@ -36,6 +36,8 @@ PROTO_REPOS_DIR="../spienx-hub/src/repositories/grpc"
 PROTO_REPOS_FILE="repositories.proto"
 PROTO_DOCS_DIR="../spienx-hub/src/documents/grpc"
 PROTO_DOCS_FILE="documents.proto"
+PROTO_ACCOUNTS_DIR="../spienx-hub/src/accounts/grpc"
+PROTO_ACCOUNTS_FILE="accounts.proto"
 OUTPUT_DIR="./src/proto"
 
 # Check if proto files exist
@@ -49,6 +51,11 @@ if [ ! -f "$PROTO_DOCS_DIR/$PROTO_DOCS_FILE" ]; then
     exit 1
 fi
 
+if [ ! -f "$PROTO_ACCOUNTS_DIR/$PROTO_ACCOUNTS_FILE" ]; then
+    echo -e "${RED}Error: Proto file not found at $PROTO_ACCOUNTS_DIR/$PROTO_ACCOUNTS_FILE${NC}"
+    exit 1
+fi
+
 echo -e "${GREEN}Generating gRPC-Web client code...${NC}"
 
 # Create output directory if it doesn't exist
@@ -59,11 +66,11 @@ rm -f "$OUTPUT_DIR"/*.js "$OUTPUT_DIR"/*.ts "$OUTPUT_DIR"/*.d.ts
 
 # Generate TypeScript client and messages using ts-proto
 echo "Generating TypeScript client and messages using ts-proto..."
-protoc -I="$PROTO_REPOS_DIR" -I="$PROTO_DOCS_DIR" \
+protoc -I="$PROTO_REPOS_DIR" -I="$PROTO_DOCS_DIR" -I="$PROTO_ACCOUNTS_DIR" \
   --plugin=./node_modules/.bin/protoc-gen-ts_proto \
   --ts_proto_out="$OUTPUT_DIR" \
   --ts_proto_opt=outputServices=nice-grpc,outputServices=generic-definitions,env=browser,esModuleInterop=true,useOptionals=messages \
-  "$PROTO_REPOS_DIR/$PROTO_REPOS_FILE" "$PROTO_DOCS_DIR/$PROTO_DOCS_FILE"
+  "$PROTO_REPOS_DIR/$PROTO_REPOS_FILE" "$PROTO_DOCS_DIR/$PROTO_DOCS_FILE" "$PROTO_ACCOUNTS_DIR/$PROTO_ACCOUNTS_FILE"
 
 if [ $? -ne 0 ]; then
     echo -e "${RED}Error: Failed to generate proto files${NC}"

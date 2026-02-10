@@ -3,8 +3,7 @@ import { useEffect, useState } from 'react'
 import { Provider as ReduxProvider } from 'react-redux'
 import { viewerStore } from './apps/viewer/store/store'
 import { store as gitStore } from './store/store'
-import ViewerLayout from './apps/shared/layouts/ViewerLayout'
-import AppLayout from './components/AppLayout'
+import AppLayout from './apps/shared/layouts/AppLayout'
 import Viewer from './apps/viewer/pages/Viewer'
 import Documents from './apps/viewer/pages/Documents'
 import AddAndBuild from './apps/viewer/pages/AddAndBuild'
@@ -81,11 +80,12 @@ function App() {
     );
   }
 
-  const handleLogout = () => {
-    setIsAuthenticated(false);
-    setUser(null);
-    checkAuthStatus();
-  };
+  // TODO: Implement logout functionality through menu
+  // const handleLogout = () => {
+  //   setIsAuthenticated(false);
+  //   setUser(null);
+  //   checkAuthStatus();
+  // };
 
   return (
     <Router>
@@ -102,21 +102,21 @@ function App() {
             {/* Viewer App Routes */}
             <Route path="/documents/*" element={
               <ReduxProvider store={viewerStore}>
-                <ViewerLayout user={user} onLogout={handleLogout}>
+                <AppLayout user={user}>
                   <Routes>
                     <Route index element={<Documents />} />
                     <Route path="new" element={<AddAndBuild />} />
                     <Route path=":id" element={<Viewer />} />
                     <Route path=":id/:pagePath" element={<Viewer />} />
                   </Routes>
-                </ViewerLayout>
+                </AppLayout>
               </ReduxProvider>
             } />
             
             {/* Git Management App Routes */}
             <Route path="/*" element={
               <ReduxProvider store={gitStore}>
-                <AppLayout user={user} onLogout={handleLogout}>
+                <AppLayout user={user}>
                   <Routes>
                     <Route path="/" element={<Home />} />
                     <Route path="/about" element={<About />} />
