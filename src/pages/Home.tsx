@@ -1,60 +1,63 @@
 import React from 'react'
+import {
+  Card,
+  CardBody,
+  CardTitle,
+  Gallery,
+  GalleryItem,
+  PageSection,
+  PageSectionVariants,
+  Title,
+} from '@patternfly/react-core'
 import './Home.css'
 
 function Home() {
   return (
-    <div className="page home-page">
-      <div className="hero">
-        <h1>Welcome to Spienx</h1>
-        <p className="subtitle">Your Multi-Page React Application</p>
-      </div>
-      
-      <div className="content-section">
-        <div className="card">
-          <h2>🚀 Getting Started</h2>
-          <p>
-            This is a modern multi-page React application built with React Router and Redux.
-            Navigate through the pages using the navigation bar above.
-          </p>
+    <>
+      <PageSection variant={PageSectionVariants.light}>
+        <div>
+          <Title headingLevel="h1" size="3xl">Welcome to Spienx</Title>
+          <p>PatternFly 6 shell, SPIE design system tokens, and gRPC-backed repository tools.</p>
         </div>
-        
-        <div className="card">
-          <h2>📦 Repository Management</h2>
-          <p>
-            Manage your Git repositories with our integrated gRPC-Web API. 
-            View, create, sync, and monitor your repositories all in one place.
-          </p>
-          <ul>
-            <li>List and search repositories</li>
-            <li>Create new repositories</li>
-            <li>Sync with remote sources</li>
-            <li>View branches and commits</li>
-          </ul>
-        </div>
-        
-        <div className="card">
-          <h2>⚡ Features</h2>
-          <ul>
-            <li>React 18 with modern hooks</li>
-            <li>React Router for seamless navigation</li>
-            <li>Redux Toolkit for state management</li>
-            <li>gRPC-Web API integration</li>
-            <li>Vite for fast development</li>
-            <li>Responsive design</li>
-            <li>Clean and modular structure</li>
-          </ul>
-        </div>
-        
-        <div className="card">
-          <h2>📚 Learn More</h2>
-          <p>
-            Visit the <a href="/repositories">Repositories</a> page to manage your Git repositories,
-            <a href="/about"> About</a> page to learn more about this application,
-            or go to <a href="/contact">Contact</a> to get in touch.
-          </p>
-        </div>
-      </div>
-    </div>
+      </PageSection>
+
+      <PageSection variant={PageSectionVariants.default}>
+        <Gallery hasGutter minWidths={{ default: '100%', md: '20rem' }}>
+          <GalleryItem>
+            <Card>
+              <CardTitle>Getting started</CardTitle>
+              <CardBody>
+                Navigate with the left rail, inspect repositories, and jump into documents from the same shell.
+              </CardBody>
+            </Card>
+          </GalleryItem>
+          <GalleryItem>
+            <Card>
+              <CardTitle>Repository management</CardTitle>
+              <CardBody>
+                List, create, sync, and inspect Git repositories through the gRPC-Web API.
+              </CardBody>
+            </Card>
+          </GalleryItem>
+          <GalleryItem>
+            <Card>
+              <CardTitle>PatternFly 6 UI</CardTitle>
+              <CardBody>
+                The app now uses the SPIE design-system submodule on top of PatternFly 6 tokens and components.
+              </CardBody>
+            </Card>
+          </GalleryItem>
+          <GalleryItem>
+            <Card>
+              <CardTitle>Next steps</CardTitle>
+              <CardBody>
+                Continue by moving the create, detail, and document views onto the same component library and spacing scale.
+              </CardBody>
+            </Card>
+          </GalleryItem>
+        </Gallery>
+      </PageSection>
+    </>
   )
 }
 

@@ -6,6 +6,7 @@ import { CodeBlock } from './CodeBlock';
 import { Note } from './Note';
 import { Section } from './Section';
 import { SectionRef } from './SectionRef';
+import { Image } from './Image';
 import { SectionResponse } from '../../../proto/documents';
 
 export interface PageProps {
@@ -52,6 +53,12 @@ export const Page: React.FC<PageProps> = ({
                         TableCell: TableCell as any,
                         CodeBlock: CodeBlock as any,
                         Note: Note as any,
+                        Image: (props: any) => (
+                            <Image
+                                {...props}
+                                documentId={documentId}
+                            />
+                        ),
                         // Enhanced Link component with navigation support
                         // Map 'to' prop from backend to 'href' prop for Link component
                         Link: (props: any) => {
@@ -67,6 +74,7 @@ export const Page: React.FC<PageProps> = ({
                                 <Link
                                     {...props}
                                     href={fullHref}
+                                      onClick={onNavigate}
                                 />
                             );
                         },

@@ -1,37 +1,39 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import { fetchDocument, fetchDocumentBuilds } from '../store/slices/documentsSlice';
 import { ViewerAppDispatch, ViewerRootState } from '../store/store';
 import { Page } from '../components/Page';
+import './Viewer.css';
 import '../../../../design-system/scss/main.scss';
 
 const Viewer: React.FC = () => {
   const dispatch = useDispatch<ViewerAppDispatch>();
   const navigate = useNavigate();
-  const { id, pagePath } = useParams<{ id: string; pagePath?: string }>();
+  const location = useLocation();
+  const { id } = useParams<{ id: string }>();
   
-  const { document, pages, builds, loading, error, buildsLoading } = useSelector(
+  const { document: currentDocument, pages, builds, loading, error, buildsLoading } = useSelector(
     (state: ViewerRootState) => state.documents.current
   );
 
-  const actualPath = pagePath || document?.globalContext?.master_doc || "";
+  const pagePath = React.useMemo(() => {
+    if (!id) {
+      return '';
+    }
 
-  // Find the current page by path
+    const basePath = `/documents/${id}`;
+    if (!location.pathname.startsWith(basePath)) {
+      return '';
+    }
+
+    const remainder = location.pathname.slice(basePath.length);
+    return remainder.replace(/^\//, '');
+  }, [id, location.pathname]);
+  const actualPath = pagePath || currentDocument?.globalContext?.master_doc || '';
+
   const currentPage = actualPath ? pages.find(p => p.path === actualPath) : pages[0];
-
-  // Debug logging
-  useEffect(() => {
-    console.log("=== Viewer Debug ===");
-    console.log("pagePath:", pagePath);
-    console.log("actualPath:", actualPath);
-    console.log("document:", document);
-    console.log("document?.globalContext?.master_doc:", document?.globalContext?.master_doc);
-    console.log("builds:", builds);
-    console.log("pages:", pages);
-    console.log("currentPage:", currentPage);
-  }, [pagePath, actualPath, currentPage, document, pages, builds]);
 
   useEffect(() => {
     if (id) {
@@ -40,6 +42,28 @@ const Viewer: React.FC = () => {
       dispatch(fetchDocumentBuilds(docId));
     }
   }, [id, dispatch]);
+
+  useEffect(() => {
+    if (!location.hash) {
+      return;
+    }
+
+    const targetId = decodeURIComponent(location.hash.substring(1));
+    const sectionByHash = currentPage?.sections?.find((section) => section.hash === targetId);
+    const candidateAnchors = [targetId];
+
+    if (sectionByHash?.sphinxId) {
+      candidateAnchors.push(sectionByHash.sphinxId);
+    }
+
+    const target = candidateAnchors
+      .map((anchor) => document.getElementById(anchor) || document.querySelector(`[data-sphinx-id="${anchor}"]`))
+      .find(Boolean) as HTMLElement | null;
+
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [location.hash, currentPage?.path]);
 
   if (loading) {
     return (
@@ -57,7 +81,7 @@ const Viewer: React.FC = () => {
     );
   }
 
-  if (!document) {
+  if (!currentDocument) {
     return (
       <div className="viewer-container">
         <div className="viewer-empty">No document found</div>
@@ -82,62 +106,41 @@ const Viewer: React.FC = () => {
     );
   }
 
-  // Navigation handlers using page paths
-  const handlePreviousPage = () => {
-    if (currentPage?.previousPage) {
-      navigate(`/documents/${id}/pages/${currentPage.previousPage}`);
-    }
-  };
-
-  const handleNextPage = () => {
-    if (currentPage?.nextPage) {
-      navigate(`/documents/${id}/pages/${currentPage.nextPage}`);
-    }
-  };
-
-  // Handle internal link navigation with document ID preserved
   const handleLinkNavigation = (href: string) => {
-    // Remove leading slash if present
+    if (!id) {
+      return;
+    }
+
+    if (href.startsWith('http://') || href.startsWith('https://')) {
+      window.location.href = href;
+      return;
+    }
+
     const cleanHref = href.startsWith('/') ? href.substring(1) : href;
-    
-    // Split path and hash
-    const [path, hash] = cleanHref.split('#');
-    
-    // Build full path with document ID
-    const fullPath = `/documents/${id}/${path}${hash ? '#' + hash : ''}`;
-    navigate(fullPath);
+    const [pathPart, hashPart] = cleanHref.split('#');
+    const effectivePath = pathPart || currentPage.path;
+    navigate(`/documents/${id}/${effectivePath}${hashPart ? `#${hashPart}` : ''}`);
   };
 
   return (
     <div className="viewer-container">
       <header className="viewer-header">
-        <a href="/" className="header-logo">
-          <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="20" cy="20" r="18" fill="currentColor" opacity="0.1"/>
-            <path d="M20 8L28 14V26L20 32L12 26V14L20 8Z" fill="currentColor" strokeWidth="1.5" stroke="currentColor"/>
-          </svg>
-          <span className="logo-text">Spienx</span>
-        </a>
-        <nav className="header-nav"></nav>
+        <h1 className="viewer-title">{currentDocument.title}</h1>
+        <div className="viewer-metadata">
+          <span className="metadata-item">
+            <strong>Reference:</strong> {currentDocument.reference}
+          </span>
+          {currentDocument.lastBuildAt && (
+            <span className="metadata-item">
+              <strong>Last Built:</strong> {new Date(currentDocument.lastBuildAt).toLocaleDateString()}
+            </span>
+          )}
+        </div>
       </header>
 
-      <main className="viewer-content">
-        <div>
-          <h1 className="viewer-title">{document.title}</h1>
-          <div className="viewer-metadata">
-            <span className="metadata-item">
-              <strong>Reference:</strong> {document.reference}
-            </span>
-            {document.lastBuildAt && (
-              <span className="metadata-item">
-                <strong>Last Built:</strong> {new Date(document.lastBuildAt).toLocaleDateString()}
-              </span>
-            )}
-          </div>
-        </div>
-        
-        {/* Recent Builds Summary */}
-        <div className="builds-summary">
+      <main className="viewer-main-layout">
+        <section className="viewer-content">
+          <div className="builds-summary">
           <strong>Build Configurations:</strong>
           {buildsLoading ? (
             <span> Loading...</span>
@@ -156,41 +159,19 @@ const Viewer: React.FC = () => {
           ) : (
             <span> No builds found</span>
           )}
-        </div>
-
-        <Page
-          title={currentPage.title}
-          sections={currentPage.sections}
-          content= {currentPage.jsxContent}
-          bindings={currentPage.context}
-          onNavigate={handleLinkNavigation}
-          documentId={id}
-          debug={true}
-        />
-      </main>
-
-      {/* Page Navigation Footer */}
-      <footer className="viewer-footer">
-        <div className="page-navigation">
-          <button
-            onClick={handlePreviousPage}
-            disabled={!currentPage?.previousPage}
-            className="nav-button"
-          >
-            ← Previous
-          </button>
-          <div className="page-indicator">
-            {currentPage.path}
           </div>
-          <button
-            onClick={handleNextPage}
-            disabled={!currentPage?.nextPage}
-            className="nav-button"
-          >
-            Next →
-          </button>
-        </div>
-      </footer>
+
+          <Page
+            title={currentPage.title}
+            sections={currentPage.sections}
+            content={currentPage.jsxContent}
+            bindings={currentPage.context}
+            onNavigate={handleLinkNavigation}
+            documentId={id}
+            debug={false}
+          />
+        </section>
+      </main>
     </div>
   );
 };

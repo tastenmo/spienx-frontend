@@ -6,7 +6,7 @@ interface SpieLogoProps {
   className?: string;
 }
 
-const SpieLogoIcon: React.FC<SpieLogoProps> = ({ width = 'auto', height = 40, className }) => (
+const SpieLogoIcon: React.FC<SpieLogoProps> = ({ width = 87, height = 40, className }) => (
   <svg
     width={width}
     height={height}

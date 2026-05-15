@@ -1,0 +1,92 @@
+.app-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.app-layout-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--background);
+}
+
+.app-header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.app-menu-anchor {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.app-menu-overlay {
+  top: calc(100% + 12px);
+  right: 0;
+  min-width: 220px;
+}
+
+.app-menu-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px 6px 12px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.app-menu-title {
+  font-family: "IBM Plex Serif", "Times New Roman", serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.app-menu-subtitle {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.app-menu-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 10px;
+}
+
+.app-menu-link {
+  display: flex;
+  align-items: center;
+  padding: 8px 10px;
+  border-radius: 8px;
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.65);
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.app-menu-link:hover {
+  background: rgba(255, 255, 255, 0.95);
+  transform: translateX(2px);
+}
+
+.app-menu-link.is-active {
+  font-weight: 600;
+  background: rgba(255, 255, 255, 1);
+}
+
+@media (max-width: 768px) {
+  .app-layout-header {
+    padding: 12px 16px;
+  }
+
+  .app-menu-overlay {
+    right: -8px;
+    min-width: 200px;
+  }
+}

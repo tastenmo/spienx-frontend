@@ -16,6 +16,29 @@ export interface BuildListResponse {
   results: BuildResponse[];
 }
 
+export interface BuildReadGetTableOfContentsListResponse {
+  results: BuildReadGetTableOfContentsResponse[];
+}
+
+export interface BuildReadGetTableOfContentsRequest {
+  buildId: number;
+}
+
+export interface BuildReadGetTableOfContentsResponse {
+  id: string;
+  title: string;
+  pagePath: string;
+  hash: string;
+  level: number;
+  sourcePath: string;
+  startLine: number;
+  endLine: number;
+  parentHash: string;
+  orderIndex: number;
+  canOpenSource: boolean;
+  canEdit: boolean;
+}
+
 export interface BuildReadListRequest {
   document: number;
 }
@@ -58,6 +81,17 @@ export interface DocumentCreateAndStartBuildRequest {
 
 export interface DocumentDestroyRequest {
   id: number;
+}
+
+export interface DocumentGetStaticAssetUrlRequest {
+  documentId: number;
+  relativePath: string;
+}
+
+export interface DocumentGetStaticAssetUrlResponse {
+  path: string;
+  url: string;
+  hash: string;
 }
 
 export interface DocumentListRequest {
@@ -106,6 +140,8 @@ export interface SectionResponse {
   startLine: number;
   endLine: number;
   contentBlock?: ContentBlockResponse | undefined;
+  level?: number | undefined;
+  orderIndex?: number | undefined;
 }
 
 function createBaseBuildListResponse(): BuildListResponse {
@@ -166,6 +202,387 @@ export const BuildListResponse: MessageFns<BuildListResponse> = {
   fromPartial<I extends Exact<DeepPartial<BuildListResponse>, I>>(object: I): BuildListResponse {
     const message = createBaseBuildListResponse();
     message.results = object.results?.map((e) => BuildResponse.fromPartial(e)) || [];
+    return message;
+  },
+};
+
+function createBaseBuildReadGetTableOfContentsListResponse(): BuildReadGetTableOfContentsListResponse {
+  return { results: [] };
+}
+
+export const BuildReadGetTableOfContentsListResponse: MessageFns<BuildReadGetTableOfContentsListResponse> = {
+  encode(message: BuildReadGetTableOfContentsListResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    for (const v of message.results) {
+      BuildReadGetTableOfContentsResponse.encode(v!, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): BuildReadGetTableOfContentsListResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseBuildReadGetTableOfContentsListResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.results.push(BuildReadGetTableOfContentsResponse.decode(reader, reader.uint32()));
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): BuildReadGetTableOfContentsListResponse {
+    return {
+      results: globalThis.Array.isArray(object?.results)
+        ? object.results.map((e: any) => BuildReadGetTableOfContentsResponse.fromJSON(e))
+        : [],
+    };
+  },
+
+  toJSON(message: BuildReadGetTableOfContentsListResponse): unknown {
+    const obj: any = {};
+    if (message.results?.length) {
+      obj.results = message.results.map((e) => BuildReadGetTableOfContentsResponse.toJSON(e));
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<BuildReadGetTableOfContentsListResponse>, I>>(
+    base?: I,
+  ): BuildReadGetTableOfContentsListResponse {
+    return BuildReadGetTableOfContentsListResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<BuildReadGetTableOfContentsListResponse>, I>>(
+    object: I,
+  ): BuildReadGetTableOfContentsListResponse {
+    const message = createBaseBuildReadGetTableOfContentsListResponse();
+    message.results = object.results?.map((e) => BuildReadGetTableOfContentsResponse.fromPartial(e)) || [];
+    return message;
+  },
+};
+
+function createBaseBuildReadGetTableOfContentsRequest(): BuildReadGetTableOfContentsRequest {
+  return { buildId: 0 };
+}
+
+export const BuildReadGetTableOfContentsRequest: MessageFns<BuildReadGetTableOfContentsRequest> = {
+  encode(message: BuildReadGetTableOfContentsRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.buildId !== 0) {
+      writer.uint32(8).int64(message.buildId);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): BuildReadGetTableOfContentsRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseBuildReadGetTableOfContentsRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
+            break;
+          }
+
+          message.buildId = longToNumber(reader.int64());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): BuildReadGetTableOfContentsRequest {
+    return { buildId: isSet(object.buildId) ? globalThis.Number(object.buildId) : 0 };
+  },
+
+  toJSON(message: BuildReadGetTableOfContentsRequest): unknown {
+    const obj: any = {};
+    if (message.buildId !== 0) {
+      obj.buildId = Math.round(message.buildId);
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<BuildReadGetTableOfContentsRequest>, I>>(
+    base?: I,
+  ): BuildReadGetTableOfContentsRequest {
+    return BuildReadGetTableOfContentsRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<BuildReadGetTableOfContentsRequest>, I>>(
+    object: I,
+  ): BuildReadGetTableOfContentsRequest {
+    const message = createBaseBuildReadGetTableOfContentsRequest();
+    message.buildId = object.buildId ?? 0;
+    return message;
+  },
+};
+
+function createBaseBuildReadGetTableOfContentsResponse(): BuildReadGetTableOfContentsResponse {
+  return {
+    id: "",
+    title: "",
+    pagePath: "",
+    hash: "",
+    level: 0,
+    sourcePath: "",
+    startLine: 0,
+    endLine: 0,
+    parentHash: "",
+    orderIndex: 0,
+    canOpenSource: false,
+    canEdit: false,
+  };
+}
+
+export const BuildReadGetTableOfContentsResponse: MessageFns<BuildReadGetTableOfContentsResponse> = {
+  encode(message: BuildReadGetTableOfContentsResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== "") {
+      writer.uint32(10).string(message.id);
+    }
+    if (message.title !== "") {
+      writer.uint32(18).string(message.title);
+    }
+    if (message.pagePath !== "") {
+      writer.uint32(26).string(message.pagePath);
+    }
+    if (message.hash !== "") {
+      writer.uint32(34).string(message.hash);
+    }
+    if (message.level !== 0) {
+      writer.uint32(40).int32(message.level);
+    }
+    if (message.sourcePath !== "") {
+      writer.uint32(50).string(message.sourcePath);
+    }
+    if (message.startLine !== 0) {
+      writer.uint32(56).int32(message.startLine);
+    }
+    if (message.endLine !== 0) {
+      writer.uint32(64).int32(message.endLine);
+    }
+    if (message.parentHash !== "") {
+      writer.uint32(74).string(message.parentHash);
+    }
+    if (message.orderIndex !== 0) {
+      writer.uint32(80).int32(message.orderIndex);
+    }
+    if (message.canOpenSource !== false) {
+      writer.uint32(88).bool(message.canOpenSource);
+    }
+    if (message.canEdit !== false) {
+      writer.uint32(96).bool(message.canEdit);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): BuildReadGetTableOfContentsResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseBuildReadGetTableOfContentsResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.id = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.title = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.pagePath = reader.string();
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.hash = reader.string();
+          continue;
+        }
+        case 5: {
+          if (tag !== 40) {
+            break;
+          }
+
+          message.level = reader.int32();
+          continue;
+        }
+        case 6: {
+          if (tag !== 50) {
+            break;
+          }
+
+          message.sourcePath = reader.string();
+          continue;
+        }
+        case 7: {
+          if (tag !== 56) {
+            break;
+          }
+
+          message.startLine = reader.int32();
+          continue;
+        }
+        case 8: {
+          if (tag !== 64) {
+            break;
+          }
+
+          message.endLine = reader.int32();
+          continue;
+        }
+        case 9: {
+          if (tag !== 74) {
+            break;
+          }
+
+          message.parentHash = reader.string();
+          continue;
+        }
+        case 10: {
+          if (tag !== 80) {
+            break;
+          }
+
+          message.orderIndex = reader.int32();
+          continue;
+        }
+        case 11: {
+          if (tag !== 88) {
+            break;
+          }
+
+          message.canOpenSource = reader.bool();
+          continue;
+        }
+        case 12: {
+          if (tag !== 96) {
+            break;
+          }
+
+          message.canEdit = reader.bool();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): BuildReadGetTableOfContentsResponse {
+    return {
+      id: isSet(object.id) ? globalThis.String(object.id) : "",
+      title: isSet(object.title) ? globalThis.String(object.title) : "",
+      pagePath: isSet(object.pagePath) ? globalThis.String(object.pagePath) : "",
+      hash: isSet(object.hash) ? globalThis.String(object.hash) : "",
+      level: isSet(object.level) ? globalThis.Number(object.level) : 0,
+      sourcePath: isSet(object.sourcePath) ? globalThis.String(object.sourcePath) : "",
+      startLine: isSet(object.startLine) ? globalThis.Number(object.startLine) : 0,
+      endLine: isSet(object.endLine) ? globalThis.Number(object.endLine) : 0,
+      parentHash: isSet(object.parentHash) ? globalThis.String(object.parentHash) : "",
+      orderIndex: isSet(object.orderIndex) ? globalThis.Number(object.orderIndex) : 0,
+      canOpenSource: isSet(object.canOpenSource) ? globalThis.Boolean(object.canOpenSource) : false,
+      canEdit: isSet(object.canEdit) ? globalThis.Boolean(object.canEdit) : false,
+    };
+  },
+
+  toJSON(message: BuildReadGetTableOfContentsResponse): unknown {
+    const obj: any = {};
+    if (message.id !== "") {
+      obj.id = message.id;
+    }
+    if (message.title !== "") {
+      obj.title = message.title;
+    }
+    if (message.pagePath !== "") {
+      obj.pagePath = message.pagePath;
+    }
+    if (message.hash !== "") {
+      obj.hash = message.hash;
+    }
+    if (message.level !== 0) {
+      obj.level = Math.round(message.level);
+    }
+    if (message.sourcePath !== "") {
+      obj.sourcePath = message.sourcePath;
+    }
+    if (message.startLine !== 0) {
+      obj.startLine = Math.round(message.startLine);
+    }
+    if (message.endLine !== 0) {
+      obj.endLine = Math.round(message.endLine);
+    }
+    if (message.parentHash !== "") {
+      obj.parentHash = message.parentHash;
+    }
+    if (message.orderIndex !== 0) {
+      obj.orderIndex = Math.round(message.orderIndex);
+    }
+    if (message.canOpenSource !== false) {
+      obj.canOpenSource = message.canOpenSource;
+    }
+    if (message.canEdit !== false) {
+      obj.canEdit = message.canEdit;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<BuildReadGetTableOfContentsResponse>, I>>(
+    base?: I,
+  ): BuildReadGetTableOfContentsResponse {
+    return BuildReadGetTableOfContentsResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<BuildReadGetTableOfContentsResponse>, I>>(
+    object: I,
+  ): BuildReadGetTableOfContentsResponse {
+    const message = createBaseBuildReadGetTableOfContentsResponse();
+    message.id = object.id ?? "";
+    message.title = object.title ?? "";
+    message.pagePath = object.pagePath ?? "";
+    message.hash = object.hash ?? "";
+    message.level = object.level ?? 0;
+    message.sourcePath = object.sourcePath ?? "";
+    message.startLine = object.startLine ?? 0;
+    message.endLine = object.endLine ?? 0;
+    message.parentHash = object.parentHash ?? "";
+    message.orderIndex = object.orderIndex ?? 0;
+    message.canOpenSource = object.canOpenSource ?? false;
+    message.canEdit = object.canEdit ?? false;
     return message;
   },
 };
@@ -844,6 +1261,182 @@ export const DocumentDestroyRequest: MessageFns<DocumentDestroyRequest> = {
   },
 };
 
+function createBaseDocumentGetStaticAssetUrlRequest(): DocumentGetStaticAssetUrlRequest {
+  return { documentId: 0, relativePath: "" };
+}
+
+export const DocumentGetStaticAssetUrlRequest: MessageFns<DocumentGetStaticAssetUrlRequest> = {
+  encode(message: DocumentGetStaticAssetUrlRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.documentId !== 0) {
+      writer.uint32(8).int64(message.documentId);
+    }
+    if (message.relativePath !== "") {
+      writer.uint32(18).string(message.relativePath);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): DocumentGetStaticAssetUrlRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseDocumentGetStaticAssetUrlRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 8) {
+            break;
+          }
+
+          message.documentId = longToNumber(reader.int64());
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.relativePath = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): DocumentGetStaticAssetUrlRequest {
+    return {
+      documentId: isSet(object.documentId) ? globalThis.Number(object.documentId) : 0,
+      relativePath: isSet(object.relativePath) ? globalThis.String(object.relativePath) : "",
+    };
+  },
+
+  toJSON(message: DocumentGetStaticAssetUrlRequest): unknown {
+    const obj: any = {};
+    if (message.documentId !== 0) {
+      obj.documentId = Math.round(message.documentId);
+    }
+    if (message.relativePath !== "") {
+      obj.relativePath = message.relativePath;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<DocumentGetStaticAssetUrlRequest>, I>>(
+    base?: I,
+  ): DocumentGetStaticAssetUrlRequest {
+    return DocumentGetStaticAssetUrlRequest.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<DocumentGetStaticAssetUrlRequest>, I>>(
+    object: I,
+  ): DocumentGetStaticAssetUrlRequest {
+    const message = createBaseDocumentGetStaticAssetUrlRequest();
+    message.documentId = object.documentId ?? 0;
+    message.relativePath = object.relativePath ?? "";
+    return message;
+  },
+};
+
+function createBaseDocumentGetStaticAssetUrlResponse(): DocumentGetStaticAssetUrlResponse {
+  return { path: "", url: "", hash: "" };
+}
+
+export const DocumentGetStaticAssetUrlResponse: MessageFns<DocumentGetStaticAssetUrlResponse> = {
+  encode(message: DocumentGetStaticAssetUrlResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.path !== "") {
+      writer.uint32(10).string(message.path);
+    }
+    if (message.url !== "") {
+      writer.uint32(18).string(message.url);
+    }
+    if (message.hash !== "") {
+      writer.uint32(26).string(message.hash);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): DocumentGetStaticAssetUrlResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseDocumentGetStaticAssetUrlResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.path = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.url = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.hash = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): DocumentGetStaticAssetUrlResponse {
+    return {
+      path: isSet(object.path) ? globalThis.String(object.path) : "",
+      url: isSet(object.url) ? globalThis.String(object.url) : "",
+      hash: isSet(object.hash) ? globalThis.String(object.hash) : "",
+    };
+  },
+
+  toJSON(message: DocumentGetStaticAssetUrlResponse): unknown {
+    const obj: any = {};
+    if (message.path !== "") {
+      obj.path = message.path;
+    }
+    if (message.url !== "") {
+      obj.url = message.url;
+    }
+    if (message.hash !== "") {
+      obj.hash = message.hash;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<DocumentGetStaticAssetUrlResponse>, I>>(
+    base?: I,
+  ): DocumentGetStaticAssetUrlResponse {
+    return DocumentGetStaticAssetUrlResponse.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<DocumentGetStaticAssetUrlResponse>, I>>(
+    object: I,
+  ): DocumentGetStaticAssetUrlResponse {
+    const message = createBaseDocumentGetStaticAssetUrlResponse();
+    message.path = object.path ?? "";
+    message.url = object.url ?? "";
+    message.hash = object.hash ?? "";
+    return message;
+  },
+};
+
 function createBaseDocumentListRequest(): DocumentListRequest {
   return {};
 }
@@ -1428,7 +2021,17 @@ export const PageResponse: MessageFns<PageResponse> = {
 };
 
 function createBaseSectionResponse(): SectionResponse {
-  return { title: "", sphinxId: "", hash: "", sourcePath: "", startLine: 0, endLine: 0, contentBlock: undefined };
+  return {
+    title: "",
+    sphinxId: "",
+    hash: "",
+    sourcePath: "",
+    startLine: 0,
+    endLine: 0,
+    contentBlock: undefined,
+    level: undefined,
+    orderIndex: undefined,
+  };
 }
 
 export const SectionResponse: MessageFns<SectionResponse> = {
@@ -1453,6 +2056,12 @@ export const SectionResponse: MessageFns<SectionResponse> = {
     }
     if (message.contentBlock !== undefined) {
       ContentBlockResponse.encode(message.contentBlock, writer.uint32(58).fork()).join();
+    }
+    if (message.level !== undefined) {
+      writer.uint32(64).int32(message.level);
+    }
+    if (message.orderIndex !== undefined) {
+      writer.uint32(72).int32(message.orderIndex);
     }
     return writer;
   },
@@ -1520,6 +2129,22 @@ export const SectionResponse: MessageFns<SectionResponse> = {
           message.contentBlock = ContentBlockResponse.decode(reader, reader.uint32());
           continue;
         }
+        case 8: {
+          if (tag !== 64) {
+            break;
+          }
+
+          message.level = reader.int32();
+          continue;
+        }
+        case 9: {
+          if (tag !== 72) {
+            break;
+          }
+
+          message.orderIndex = reader.int32();
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -1538,6 +2163,8 @@ export const SectionResponse: MessageFns<SectionResponse> = {
       startLine: isSet(object.startLine) ? globalThis.Number(object.startLine) : 0,
       endLine: isSet(object.endLine) ? globalThis.Number(object.endLine) : 0,
       contentBlock: isSet(object.contentBlock) ? ContentBlockResponse.fromJSON(object.contentBlock) : undefined,
+      level: isSet(object.level) ? globalThis.Number(object.level) : undefined,
+      orderIndex: isSet(object.orderIndex) ? globalThis.Number(object.orderIndex) : undefined,
     };
   },
 
@@ -1564,6 +2191,12 @@ export const SectionResponse: MessageFns<SectionResponse> = {
     if (message.contentBlock !== undefined) {
       obj.contentBlock = ContentBlockResponse.toJSON(message.contentBlock);
     }
+    if (message.level !== undefined) {
+      obj.level = Math.round(message.level);
+    }
+    if (message.orderIndex !== undefined) {
+      obj.orderIndex = Math.round(message.orderIndex);
+    }
     return obj;
   },
 
@@ -1581,6 +2214,8 @@ export const SectionResponse: MessageFns<SectionResponse> = {
     message.contentBlock = (object.contentBlock !== undefined && object.contentBlock !== null)
       ? ContentBlockResponse.fromPartial(object.contentBlock)
       : undefined;
+    message.level = object.level ?? undefined;
+    message.orderIndex = object.orderIndex ?? undefined;
     return message;
   },
 };
@@ -1590,6 +2225,14 @@ export const BuildReadControllerDefinition = {
   name: "BuildReadController",
   fullName: "config.documents.BuildReadController",
   methods: {
+    getTableOfContents: {
+      name: "GetTableOfContents",
+      requestType: BuildReadGetTableOfContentsRequest,
+      requestStream: false,
+      responseType: BuildReadGetTableOfContentsListResponse,
+      responseStream: false,
+      options: {},
+    },
     list: {
       name: "List",
       requestType: BuildReadListRequest,
@@ -1626,6 +2269,10 @@ export const BuildReadControllerDefinition = {
 } as const;
 
 export interface BuildReadControllerServiceImplementation<CallContextExt = {}> {
+  getTableOfContents(
+    request: BuildReadGetTableOfContentsRequest,
+    context: CallContext & CallContextExt,
+  ): Promise<DeepPartial<BuildReadGetTableOfContentsListResponse>>;
   list(request: BuildReadListRequest, context: CallContext & CallContextExt): Promise<DeepPartial<BuildListResponse>>;
   retrieve(request: BuildRetrieveRequest, context: CallContext & CallContextExt): Promise<DeepPartial<BuildResponse>>;
   startBuild(
@@ -1639,6 +2286,10 @@ export interface BuildReadControllerServiceImplementation<CallContextExt = {}> {
 }
 
 export interface BuildReadControllerClient<CallOptionsExt = {}> {
+  getTableOfContents(
+    request: DeepPartial<BuildReadGetTableOfContentsRequest>,
+    options?: CallOptions & CallOptionsExt,
+  ): Promise<BuildReadGetTableOfContentsListResponse>;
   list(request: DeepPartial<BuildReadListRequest>, options?: CallOptions & CallOptionsExt): Promise<BuildListResponse>;
   retrieve(request: DeepPartial<BuildRetrieveRequest>, options?: CallOptions & CallOptionsExt): Promise<BuildResponse>;
   startBuild(
@@ -1677,6 +2328,14 @@ export const DocumentControllerDefinition = {
       requestType: DocumentDestroyRequest,
       requestStream: false,
       responseType: Empty,
+      responseStream: false,
+      options: {},
+    },
+    getStaticAssetUrl: {
+      name: "GetStaticAssetUrl",
+      requestType: DocumentGetStaticAssetUrlRequest,
+      requestStream: false,
+      responseType: DocumentGetStaticAssetUrlResponse,
       responseStream: false,
       options: {},
     },
@@ -1722,6 +2381,10 @@ export interface DocumentControllerServiceImplementation<CallContextExt = {}> {
     context: CallContext & CallContextExt,
   ): Promise<DeepPartial<BuildResponse>>;
   destroy(request: DocumentDestroyRequest, context: CallContext & CallContextExt): Promise<DeepPartial<Empty>>;
+  getStaticAssetUrl(
+    request: DocumentGetStaticAssetUrlRequest,
+    context: CallContext & CallContextExt,
+  ): Promise<DeepPartial<DocumentGetStaticAssetUrlResponse>>;
   list(request: DocumentListRequest, context: CallContext & CallContextExt): Promise<DeepPartial<DocumentListResponse>>;
   partialUpdate(
     request: DocumentPartialUpdateRequest,
@@ -1741,6 +2404,10 @@ export interface DocumentControllerClient<CallOptionsExt = {}> {
     options?: CallOptions & CallOptionsExt,
   ): Promise<BuildResponse>;
   destroy(request: DeepPartial<DocumentDestroyRequest>, options?: CallOptions & CallOptionsExt): Promise<Empty>;
+  getStaticAssetUrl(
+    request: DeepPartial<DocumentGetStaticAssetUrlRequest>,
+    options?: CallOptions & CallOptionsExt,
+  ): Promise<DocumentGetStaticAssetUrlResponse>;
   list(
     request: DeepPartial<DocumentListRequest>,
     options?: CallOptions & CallOptionsExt,

@@ -1,37 +1,18 @@
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { documentService } from '../../../../services/documentService';
 import {
-  DocumentReadControllerDefinition,
-  DocumentReadControllerClient,
-  DocumentListRequest,
-  DocumentRetrieveRequest,
-  DocumentReadStreamPagesRequest,
-  DocumentResponse,
-  PageResponse
+  BuildReadGetTableOfContentsResponse,
+  PageResponse,
+  SectionResponse,
 } from '../../../../proto/documents';
-
-interface ContentBlockResponse {
-  contentHash: string;
-  jsxContent: string;
-}
-
-interface SectionResponse {
-  title: string;
-  sphinxId: string;
-  hash: string;
-  sourcePath: string;
-  startLine: number;
-  endLine: number;
-  contentBlock?: ContentBlockResponse;
-}
 
 interface DocumentMetadata {
   id?: number;
   title: string;
   source: number;
-  reference: string;
-  workdir: string;
-  confPath: string;
+  reference?: string;
+  workdir?: string;
+  confPath?: string;
   lastBuildAt?: string;
   globalContext?: Record<string, any>;
 }
@@ -57,6 +38,7 @@ interface DocumentsState {
     document: DocumentMetadata | null;
     pages: DocumentPage[];
     builds: DocumentBuild[];
+    toc: BuildReadGetTableOfContentsResponse[];
     loading: boolean;
     error: string | null;
     buildsLoading: boolean;
@@ -73,6 +55,7 @@ const initialState: DocumentsState = {
     document: null,
     pages: [],
     builds: [],
+    toc: [],
     loading: false,
     error: null,
     buildsLoading: false
@@ -134,8 +117,10 @@ export const fetchDocument = createAsyncThunk(
       };
       
       // Fetch pages from the latest build
-      const pages = latestBuild ? await documentService.getDocumentPages(latestBuild.id) : [];
-      return { document: documentWithContext, pages };
+      const latestBuildId = latestBuild?.id;
+      const pages = latestBuildId ? await documentService.getDocumentPages(latestBuildId) : [];
+      const toc = latestBuildId ? await documentService.getTableOfContents(latestBuildId) : [];
+      return { document: documentWithContext, pages, toc };
     } catch (error) {
       return rejectWithValue((error as Error).message);
     }
@@ -151,6 +136,7 @@ const documentsSlice = createSlice({
         document: null,
         pages: [],
         builds: [],
+        toc: [],
         loading: false,
         error: null,
         buildsLoading: false
@@ -189,6 +175,7 @@ const documentsSlice = createSlice({
         state.current.loading = false;
         state.current.document = action.payload.document;
         state.current.pages = action.payload.pages;
+        state.current.toc = action.payload.toc;
       })
       .addCase(fetchDocument.rejected, (state, action) => {
         state.current.loading = false;

@@ -12,6 +12,10 @@
   },
   "dependencies": {
     "@bufbuild/protobuf": "^2.10.2",
+    "@patternfly/patternfly": "^6.4.0",
+    "@patternfly/react-core": "^6.4.3",
+    "@patternfly/react-icons": "^6.4.0",
+    "@patternfly/react-tokens": "^6.4.0",
     "@reduxjs/toolkit": "^2.0.1",
     "@vitejs/plugin-react": "^4.2.1",
     "@wooorm/starry-night": "^3.8.0",

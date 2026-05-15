@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { userProfileService } from '../services/userProfileService';
+import { userProfileService } from '../../services/userProfileService';
 import type { UserResponse, UserProfileResponse } from '../proto/accounts';
 
 /**

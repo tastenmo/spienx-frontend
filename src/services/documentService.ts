@@ -5,10 +5,14 @@ import {
   BuildReadControllerClient,
   DocumentListRequest,
   DocumentRetrieveRequest,
-  BuildListRequest,
+  BuildReadListRequest,
+  BuildReadGetTableOfContentsRequest,
+  BuildReadGetTableOfContentsResponse,
   BuildReadStreamPagesRequest,
   PageResponse,
-  DocumentCreateAndStartBuildRequest
+  DocumentCreateAndStartBuildRequest,
+  DocumentGetStaticAssetUrlRequest,
+  DocumentGetStaticAssetUrlResponse
 } from '../proto/documents';
 import { channel, clientFactory } from '../utils/grpc';
 
@@ -41,8 +45,14 @@ class DocumentService {
    * List builds for a document
    */
   async listBuilds(documentId: number) {
-    const request: BuildListRequest = { documentId };
+    const request: BuildReadListRequest = { document: documentId };
     const response = await this.buildClient.list(request);
+    return response.results || [];
+  }
+
+  async getTableOfContents(buildId: number): Promise<BuildReadGetTableOfContentsResponse[]> {
+    const request: BuildReadGetTableOfContentsRequest = { buildId };
+    const response = await this.buildClient.getTableOfContents(request);
     return response.results || [];
   }
 
@@ -104,6 +114,17 @@ class DocumentService {
       }
     }
     return Array.from(pagesMap.values());
+  }
+
+  /**
+   * Resolve a document relative static asset path to its hashed static URL.
+   */
+  async getStaticAssetUrl(documentId: number, relativePath: string): Promise<DocumentGetStaticAssetUrlResponse> {
+    const request: DocumentGetStaticAssetUrlRequest = {
+      documentId,
+      relativePath,
+    };
+    return await this.docClient.getStaticAssetUrl(request);
   }
 }
 

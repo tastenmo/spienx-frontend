@@ -4,7 +4,9 @@ import { Provider as ReduxProvider } from 'react-redux'
 import { viewerStore } from './apps/viewer/store/store'
 import { store as gitStore } from './store/store'
 import AppLayout from './apps/shared/layouts/AppLayout'
+import { UserProfilePage } from './apps/shared/UserProfilePage'
 import Viewer from './apps/viewer/pages/Viewer'
+import ViewerSidebarToc from './apps/viewer/components/ViewerSidebarToc'
 import Documents from './apps/viewer/pages/Documents'
 import AddAndBuild from './apps/viewer/pages/AddAndBuild'
 import Home from './pages/Home'
@@ -72,6 +74,25 @@ function App() {
     }
   };
 
+  const handleLogout = async () => {
+    try {
+      const csrfToken = getCookie('csrftoken');
+      await fetch(`${API_URL}/api/auth/logout/`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrfToken || '',
+        },
+      });
+    } catch (error) {
+      console.error('Logout failed:', error);
+    } finally {
+      setIsAuthenticated(false);
+      setUser(null);
+    }
+  };
+
   if (isLoading) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
@@ -88,7 +109,7 @@ function App() {
   // };
 
   return (
-    <Router>
+    <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <Routes>
         {!isAuthenticated ? (
           <>
@@ -102,12 +123,12 @@ function App() {
             {/* Viewer App Routes */}
             <Route path="/documents/*" element={
               <ReduxProvider store={viewerStore}>
-                <AppLayout user={user}>
+                <AppLayout user={user} onLogout={handleLogout} sidebarExtra={<ViewerSidebarToc />}>
                   <Routes>
                     <Route index element={<Documents />} />
                     <Route path="new" element={<AddAndBuild />} />
                     <Route path=":id" element={<Viewer />} />
-                    <Route path=":id/:pagePath" element={<Viewer />} />
+                    <Route path=":id/*" element={<Viewer />} />
                   </Routes>
                 </AppLayout>
               </ReduxProvider>
@@ -116,7 +137,7 @@ function App() {
             {/* Git Management App Routes */}
             <Route path="/*" element={
               <ReduxProvider store={gitStore}>
-                <AppLayout user={user}>
+                <AppLayout user={user} onLogout={handleLogout}>
                   <Routes>
                     <Route path="/" element={<Home />} />
                     <Route path="/about" element={<About />} />
@@ -126,6 +147,7 @@ function App() {
                     <Route path="/repositories/:id" element={<RepositoryDetail />} />
                     <Route path="/mirrors" element={<Mirrors />} />
                     <Route path="/migrations" element={<Migrations />} />
+                    <Route path="/user-profile" element={<UserProfilePage />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </AppLayout>

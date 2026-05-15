@@ -1,20 +1,26 @@
-import React, { useState, useEffect } from 'react';
-import { ThemeToggleButton, MenuButton } from '../components';
-import { SpieLogoIcon } from '../icons';
-
-type Theme = 'light' | 'dark' | 'doc';
+import React, { useEffect, useState } from 'react';
+import { NavLink, useLocation } from 'react-router-dom';
+import { Button, Nav, NavItem, NavList, ToolbarItem } from '@patternfly/react-core';
+import SunIcon from '@patternfly/react-icons/dist/esm/icons/sun-icon';
+import MoonIcon from '@patternfly/react-icons/dist/esm/icons/moon-icon';
+import { GridPageLayout } from '../../../../design-system/src/layouts/GridPageLayout';
+import logoLight from '../../../../design-system/assets/logos/spie.svg?url';
+import logoDark from '../../../../design-system/assets/logos/spie-dark.svg?url';
+import './AppLayout.css';
 
 interface AppLayoutProps {
   children: React.ReactNode;
   user?: { username: string; email?: string; avatarUrl?: string } | null;
-  onMenuClick?: () => void;
+  onLogout?: () => void | Promise<void>;
+  sidebarExtra?: React.ReactNode;
 }
 
-const AppLayout: React.FC<AppLayoutProps> = ({ children, user, onMenuClick }) => {
-  const [menuOpen, setMenuOpen] = useState(false);
+type Theme = 'light' | 'dark' | 'doc';
+
+const AppLayout: React.FC<AppLayoutProps> = ({ children, user, onLogout, sidebarExtra }) => {
+  const location = useLocation();
   const [theme, setTheme] = useState<Theme>('light');
 
-  // Initialize theme from localStorage
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme') as Theme | null;
     if (savedTheme && ['light', 'dark', 'doc'].includes(savedTheme)) {
@@ -34,13 +40,6 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, user, onMenuClick }) =>
     localStorage.setItem('theme', newTheme);
   };
 
-  const handleMenuToggle = () => {
-    setMenuOpen(!menuOpen);
-    if (onMenuClick) {
-      onMenuClick();
-    }
-  };
-
   const handleThemeToggle = () => {
     const themeOrder: Theme[] = ['light', 'dark', 'doc'];
     const currentIndex = themeOrder.indexOf(theme);
@@ -49,47 +48,74 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children, user, onMenuClick }) =>
     applyTheme(nextTheme);
   };
 
+  const logoSrc = theme === 'dark' ? logoDark : logoLight;
+  const isDocumentViewerRoute = /^\/documents\/[^/]+/.test(location.pathname);
+
+  const navItem = (to: string, label: string) => {
+    const isActive = location.pathname === to || (to !== '/' && location.pathname.startsWith(`${to}/`));
+
+    return (
+      <NavItem isActive={isActive}>
+        <NavLink to={to} className="spie-nav-link">
+          {label}
+        </NavLink>
+      </NavItem>
+    );
+  };
+
+  const headerActions = (
+    <>
+      <ToolbarItem>
+        <Button
+          variant="plain"
+          onClick={handleThemeToggle}
+          aria-label="Toggle theme"
+          icon={theme === 'dark' ? <MoonIcon /> : <SunIcon />}
+        />
+      </ToolbarItem>
+      {user && (
+        <ToolbarItem>
+          <span className="spie-layout-user">{user.username}</span>
+        </ToolbarItem>
+      )}
+      {onLogout && (
+        <ToolbarItem>
+          <Button variant="secondary" onClick={onLogout}>
+            Sign out
+          </Button>
+        </ToolbarItem>
+      )}
+    </>
+  );
+
+  const sidebar = (
+    isDocumentViewerRoute && sidebarExtra ? (
+      <>{sidebarExtra}</>
+    ) : (
+      <>
+        <Nav aria-label="Primary">
+          <NavList>
+            {navItem('/', 'Home')}
+            {navItem('/repositories', 'Repositories')}
+            {navItem('/documents', 'Documents')}
+            {navItem('/user-profile', 'User Profile')}
+          </NavList>
+        </Nav>
+        {sidebarExtra && <div className="spie-sidebar-extra">{sidebarExtra}</div>}
+      </>
+    )
+  );
+
   return (
-    <div className="app-layout">
-      <header className="app-layout-header">
-        <div className="app-header-left">
-          <SpieLogoIcon height={40} className="app-logo" />
-        </div>
-
-        <div className="app-header-right">
-          <ThemeToggleButton 
-            theme={theme}
-            onClick={handleThemeToggle}
-          />
-
-          <MenuButton 
-            isOpen={menuOpen}
-            onClick={handleMenuToggle}
-          />
-          
-          {user && (
-            <div className="app-user">
-              {user.avatarUrl ? (
-                <img 
-                  src={user.avatarUrl} 
-                  alt={user.username} 
-                  className="app-user-avatar"
-                />
-              ) : (
-                <div className="app-user-avatar-placeholder">
-                  {user.username.charAt(0).toUpperCase()}
-                </div>
-              )}
-              <span className="app-user-name">{user.username}</span>
-            </div>
-          )}
-        </div>
-      </header>
-
-      <main className="app-layout-main">
-        {children}
-      </main>
-    </div>
+    <GridPageLayout
+      logoSrc={logoSrc}
+      logoAlt="SPIE Hub"
+      title="SPIE Hub"
+      sidebar={sidebar}
+      headerActions={headerActions}
+    >
+      {children}
+    </GridPageLayout>
   );
 };
 

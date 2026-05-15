@@ -1,5 +1,20 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import {
+  Alert,
+  AlertActionCloseButton,
+  Brand,
+  Bullseye,
+  Button,
+  Card,
+  CardBody,
+  Divider,
+  Form,
+  FormGroup,
+  PageSection,
+  TextInput,
+  Title,
+} from '@patternfly/react-core';
+import logoLight from '../../design-system/assets/logos/spie.svg?url';
 import { getCookie } from '../utils/csrf';
 import './Login.css';
 
@@ -8,7 +23,6 @@ interface LoginProps {
 }
 
 function Login({ onLoginSuccess }: LoginProps) {
-  const navigate = useNavigate();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -64,52 +78,62 @@ function Login({ onLoginSuccess }: LoginProps) {
   };
 
   return (
-    <div className="login-page">
-      <div className="login-container">
-        <div className="login-card">
-          <h1>Spienx Hub</h1>
-          <p>Sign in to access your repositories</p>
-          
-          <form onSubmit={handleSubmit}>
-            {error && <div className="error-message">{error}</div>}
-            
-            <div className="form-group">
-              <label htmlFor="username">Email or Username</label>
-              <input
-                id="username"
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="Enter your email or username"
-                required
-                disabled={isLoading}
-              />
+    <Bullseye className="login-page">
+      <PageSection isFilled className="login-section">
+        <Card isRounded className="login-card">
+          <CardBody>
+            <div className="login-branding">
+              <Brand src={logoLight} alt="SPIE Hub" heights={{ default: '24px', md: '28px' }} />
+              <Title headingLevel="h1" size="2xl">SPIE Hub</Title>
+              <p>Sign in to access your repositories and documents.</p>
             </div>
 
-            <div className="form-group">
-              <label htmlFor="password">Password</label>
-              <input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter your password"
-                required
-                disabled={isLoading}
-              />
-            </div>
+            <Divider className="login-divider" />
 
-            <button 
-              type="submit" 
-              className="btn btn-primary btn-large"
-              disabled={isLoading}
-            >
-              {isLoading ? 'Signing in...' : 'Sign In'}
-            </button>
-          </form>
-        </div>
-      </div>
-    </div>
+            <Form onSubmit={handleSubmit}>
+              {error && (
+                <Alert
+                  variant="danger"
+                  title="Login failed"
+                  actionClose={<AlertActionCloseButton onClose={() => setError('')} />}
+                  isInline
+                  className="login-alert"
+                >
+                  {error}
+                </Alert>
+              )}
+
+              <FormGroup label="Email or Username" fieldId="username">
+                <TextInput
+                  id="username"
+                  value={username}
+                  onChange={(_, value) => setUsername(value)}
+                  placeholder="Enter your email or username"
+                  isRequired
+                  isDisabled={isLoading}
+                />
+              </FormGroup>
+
+              <FormGroup label="Password" fieldId="password">
+                <TextInput
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(_, value) => setPassword(value)}
+                  placeholder="Enter your password"
+                  isRequired
+                  isDisabled={isLoading}
+                />
+              </FormGroup>
+
+              <Button type="submit" variant="primary" isBlock isDisabled={isLoading}>
+                {isLoading ? 'Signing in...' : 'Sign in'}
+              </Button>
+            </Form>
+          </CardBody>
+        </Card>
+      </PageSection>
+    </Bullseye>
   );
 }
 

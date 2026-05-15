@@ -1,10 +1,8 @@
 .viewer-container {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
   padding: 2rem 1rem;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: "IBM Plex Serif", "Times New Roman", serif;
 }
 
 .viewer-header {
@@ -43,6 +41,10 @@
 .viewer-content {
   line-height: 1.8;
   color: #333;
+}
+
+.viewer-main-layout {
+  display: block;
 }
 
 .viewer-page {
